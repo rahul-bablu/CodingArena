@@ -1,0 +1,21 @@
+.code-block {
+    background-color: #252525;
+    color: white; /* Optional: to ensure text is visible on black background */
+    padding: 10px; /* Optional: to add some padding */
+    border-radius: 5px; /* Optional: to add rounded corners */
+    overflow-x: auto; /* Optional: to handle long lines of code */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    
+    /* .code-block {
+      background-color: #8d8888;
+      color: rgb(221, 217, 217); 
+      padding: 10px; 
+      border-radius: 5px;
+      overflow-x: auto;
+    .questionBlock{
+      background-color: #252525;
+      color:aqua
+    } */
+  }

@@ -1,0 +1,10 @@
+nav {
+  background-color: white;
+  border-bottom: 1px solid  #d7d7d7;
+  justify-content: space-around;
+  display: flex;
+  align-items: center;
+  padding-block: 8px;
+  /* margin-bottom: 7; */
+}
+

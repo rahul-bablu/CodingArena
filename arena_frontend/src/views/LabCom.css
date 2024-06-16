@@ -1,0 +1,90 @@
+.app {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  .app-header {
+    background-color: #ffa500;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .username {
+    color: white;
+    margin-right: 20px;
+  }
+  
+  .logout-button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .app-main {
+    padding: 20px;
+  }
+  
+  .container {
+    background-color: #472f92;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    width: 60%;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .description {
+    margin: 20px 0;
+  }
+  
+  .buttons {
+    margin: 20px 0;
+  }
+  
+  .continue-button, .leaderboard-button {
+    background-color: #ff9900;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-label {
+    font-size: 16px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
