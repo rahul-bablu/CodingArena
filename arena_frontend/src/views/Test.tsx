@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import BaseBox from "../components/common/BaseBox";
 import Navbar from "../components/common/Navbar";
 
 const quts = [
@@ -193,9 +194,9 @@ const FullScreenComponent = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <div
+    <BaseBox
       ref={containerRef}
-      style={{ backgroundColor: "rgb(250,250,250)", width: "100%" }}
+      style={{ width: "100%" }}
     >
       {isFullscreen ? (
         <div>{children}</div>
@@ -219,7 +220,7 @@ const FullScreenComponent = ({ children }: { children: React.ReactNode }) => {
           </Button>
         </Box>
       )}
-    </div>
+    </BaseBox>
   );
 };
 

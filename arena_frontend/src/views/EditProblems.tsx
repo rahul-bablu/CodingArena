@@ -1,3 +1,8 @@
+import { Add, Create } from "@mui/icons-material";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LaunchIcon from '@mui/icons-material/Launch';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Accordion,
   AccordionDetails,
@@ -19,22 +24,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import remarkGfm from 'remark-gfm'
-import Navbar from "../components/common/Navbar";
-import Markdown from "../components/common/Markdown";
-import { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
+import { TransitionProps } from "@mui/material/transitions";
 import Axios from "axios";
+import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../components/Auth/AuthProvider";
-import { Add, Create } from "@mui/icons-material";
-import React from "react";
-import { TransitionProps } from "@mui/material/transitions";
-import style from "./Problem.module.css";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LaunchIcon from '@mui/icons-material/Launch';
 import { AlertContext } from "../components/common/AlertProvider";
-import SettingsIcon from '@mui/icons-material/Settings';
-import DeleteIcon from '@mui/icons-material/Delete';
+import Markdown from "../components/common/Markdown";
+import Navbar from "../components/common/Navbar";
+import style from "./Problem.module.css";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -387,7 +385,7 @@ const EditProblems = () => {
       <Navbar />
       <Box display={"flex"}>
         <div style={{ width: "80%", margin: "auto" }}>
-          <Typography fontSize={"2rem"}>{contestTitle}</Typography>
+          <Typography fontSize={"2rem"} sx={{paddingBlock: '7px'}}>{contestTitle}</Typography>
           {qs.map(
             (
               { title, id: problemId,maxscore, ProblemIOs: pios  }: { title: string; id: number, maxscore:number, ProblemIOs:{id: number, input:string, output:string, score:number}[] },

@@ -1,10 +1,45 @@
-nav {
-  background-color: white;
-  border-bottom: 1px solid  #d7d7d7;
-  justify-content: space-around;
+.nav-container {
+  width: 100%;
   display: flex;
-  align-items: center;
-  padding-block: 8px;
-  /* margin-bottom: 7; */
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgb(200, 200, 200);
+}
+
+nav {
+  display : flex;
+  justify-content : space-around;
+  align-items : center;
+  width : 80%;
+  height : 48px;
+  /* border-bottom : 2px solid black; */
+}
+
+.nav a{
+  text-decoration : none;
+  padding-bottom : 2px;
+  margin-right : 50px;
+  color : black;
+  font-weight : 550;
+  position : relative;
+  cursor : pointer;
+}
+
+.nav a::before{
+  position : absolute;
+  content : '';
+  top: 160%;
+  left : 0;
+  height : 3px;
+  width : 0%;
+  background : black;
+  transition : all ease 0.4s;
+}
+
+.nav a .active::before {
+  width: 100%;
+}
+.nav a:hover::before{
+  width : 100%;
 }
 

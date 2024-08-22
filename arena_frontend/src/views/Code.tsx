@@ -6,8 +6,10 @@ import {
   Box,
   Button,
   Card,
+  darken,
   IconButton,
   Popper,
+  styled,
   Tooltip
 } from "@mui/material";
 import Tab from "@mui/material/Tab";
@@ -54,7 +56,7 @@ const Timer = ({ deadline }: { deadline: string }) => {
       className="timer"
       role="timer"
       style={{
-        backgroundColor: "rgba(255, 255, 255, 0.7)",
+        backgroundColor: "rgba(220, 220, 220, 0.7)",
         display: "flex",
         borderRadius: 10,
         fontSize: 14,
@@ -68,7 +70,7 @@ const Timer = ({ deadline }: { deadline: string }) => {
         <div
           className="box"
           style={{
-            borderRight: "solid 1px rgba(255, 255, 255, 0.2)",
+            borderRight: "solid 1px ",
             fontWeight: 300,
             paddingInline: "10px",
           }}
@@ -77,12 +79,12 @@ const Timer = ({ deadline }: { deadline: string }) => {
           {/* <span className="text">Days</span> */}
         </div>
       </div>
-      :
+      
       <div className="col-4" style={{ width: "25%", float: "left" }}>
         <div
           className="box"
           style={{
-            borderRight: "solid 1px rgba(255, 255, 255, 0.2)",
+            borderRight: "solid 1px ",
             fontWeight: 300,
             paddingInline: "10px",
           }}
@@ -91,12 +93,12 @@ const Timer = ({ deadline }: { deadline: string }) => {
           {/* <span className="text">Hours</span> */}
         </div>
       </div>
-      :
+      
       <div className="col-4" style={{ width: "25%", float: "left" }}>
         <div
           className="box"
           style={{
-            borderRight: "solid 1px rgba(255, 255, 255, 0.7)",
+            borderRight: "solid 1px ",
             fontWeight: 300,
             paddingInline: "10px",
           }}
@@ -105,12 +107,12 @@ const Timer = ({ deadline }: { deadline: string }) => {
           {/* <span className="text">Minutes</span> */}
         </div>
       </div>
-      :
+      
       <div className="col-4" style={{ width: "25%", float: "left" }}>
         <div
           className="box"
           style={{
-            borderRight: "solid 1px rgba(255, 255, 255, 0.2)",
+            borderRight: "solid 1px ",
             fontWeight: 300,
             paddingInline: "10px",
           }}
@@ -152,8 +154,39 @@ function SimplePopper() {
   );
 }
 
+export const StyledTabs = styled(Tabs)(({ theme }) => ({
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  '& .MuiTabs-indicator': {
+    backgroundColor: '#252525',
+    height: '2px'
+  },
+}));
+
+export const StyledTab = styled(Tab)(({ theme }) => ({
+  textTransform: 'none',
+  // minWidth: 72,
+  fontWeight: theme.typography.fontWeightRegular,
+  marginRight: theme.spacing(4),
+  color: theme.palette.text.primary,
+  '&:hover': {
+    color: theme.palette.text.primary,
+    opacity: 1,
+  },
+  '&.Mui-selected': {
+    color: darken(theme.palette.text.primary, 0),
+    fontWeight: theme.typography.fontWeightBold,
+
+  },
+  '&.Mui-focusVisible': {
+    backgroundColor: theme.palette.primary.light,
+  },
+}));
+
 import Confetti from "react-confetti";
+import BaseBox from "../components/common/BaseBox";
 const Code = () => {
+
+  
   // TODO: Handle NaN
   const problemId = parseInt(useParams()["id"] || "");
   const alert = useContext(AlertContext);
@@ -248,12 +281,11 @@ const Code = () => {
   }
 
   return (
-    <div
+    <BaseBox
       style={{
         height: "100vh",
         minWidth: 500,
         overflow: "auto",
-        backgroundColor: "rgb(250,250,250)",
       }}
     >
       <Navbar />
@@ -282,7 +314,7 @@ const Code = () => {
                 margin: "5px 2px 5px 10px",
                 overflowY: "auto",
               }}
-              variant="outlined"
+              // variant="outlined"
             >
               <div
                 style={{ width: "10%", marginLeft: 15 }}
@@ -302,16 +334,16 @@ const Code = () => {
                     borderColor: "divider",
                   }}
                 >
-                  <Tabs
+                  <StyledTabs
                     onChange={(_e, t) => setTab(t)}
                     aria-label="Problem and submissions lables"
                     value={tab}
                     // style={{display: 'inline-block', justifyContent: 'space-around'}}
                     variant="fullWidth"
                   >
-                    <Tab label="Problem" value={1} />
-                    <Tab label="Submissions" value={2} />
-                  </Tabs>
+                    <StyledTab label="Problem" value={1} />
+                    <StyledTab label="Submissions" value={2} />
+                  </StyledTabs>
                 </Box>
                 <Question id={problemId} hidden={tab != 1} />
                 <div hidden={tab != 2}>
@@ -383,7 +415,7 @@ const Code = () => {
           </SplitPane>
         </SplitPane>
       </div>
-    </div>
+    </BaseBox>
   );
 };
 

@@ -1,16 +1,16 @@
-import { Router, Request, Response, NextFunction } from "express";
-import path from 'path';
-import multer from 'multer';
-import fs from 'fs';
-import util from 'util';
 import Axios from "axios";
+import { NextFunction, Request, Response, Router } from "express";
+import fs from 'fs';
+import multer from 'multer';
+import path from 'path';
+import util from 'util';
 
-import * as problemService from '../services/problem.service';
-import { Problem, Submissions, UserProblems } from "../models/problem.model";
-import { User } from "../models/user.model";
-import { UserContest } from "../models/contest.model";
 import { Judge0URL } from "../../../config";
 import { allowAdmin } from "../../_middleware/authorize";
+import { UserContest } from "../models/contest.model";
+import { Problem, Submissions, UserProblems } from "../models/problem.model";
+import { User } from "../models/user.model";
+import * as problemService from '../services/problem.service';
 const router = Router()
 
 const renameAsync = util.promisify(fs.rename);
@@ -42,6 +42,7 @@ router.get('/user/submission', async (req: Request, res: Response, next: NextFun
         next(e)
     }
 })
+
 
 router.post('/addIO/:problemid', upload.fields([{ name: 'input' }, { name: 'output' }]), async (req: any, res: Response, next: NextFunction) => {
     const problemid = parseInt(req.params.problemid)
@@ -128,6 +129,8 @@ const lids = {
     rust: 73,
     typeScript: 74,
 } as any;
+
+
 router.post('/run/:problemid', async (req: any, res: Response, next: NextFunction) => {
     const problemid = parseInt(req.params.problemid)
     try {
@@ -218,6 +221,8 @@ router.get('/submissions/:id', async (req: any, res: Response, next: NextFunctio
     }
 });
 
+// TODO: rate limiting
+
 router.post('/submission/:problemid', async (req: any, res: Response, next: NextFunction) => {
     const problemid = parseInt(req.params.problemid)
     try {
@@ -269,7 +274,7 @@ router.post('/submission/:problemid', async (req: any, res: Response, next: Next
             // updating the UserProblem table
             user.addProblem(problemid, { through: { score: currentSubmissionScore, accsubid: submission.id } });
 
-
+            console.log("UP score: ",up.score,)
             if (up.score != currentSubmissionScore) {
                 
                 // updating in UserContest table
@@ -291,7 +296,18 @@ router.post('/submission/:problemid', async (req: any, res: Response, next: Next
     }
 });
 
-
+/*
+gets the /?contestId
+req.pa
+res.body = {
+    id: number;
+    title: string;
+    maxScore: number;
+    tried: number;
+    attempted: boolean;
+    solved: boolean;
+}
+*/
 router.get('/', async (req: any, res: Response, next: NextFunction) => {
     try {
         if (req.query.contestId) {

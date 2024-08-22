@@ -1,19 +1,20 @@
-import { useRef, useState, useEffect } from "react";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import styles from "./Editor.module.css";
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  Box,
-} from "@mui/material";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import {
+  Box,
+  Card,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Tooltip,
+} from "@mui/material";
 import Axios from "axios";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { useEffect, useRef, useState } from "react";
+import styles from "./Editor.module.css";
 
 
 let initLanguages = [
@@ -184,6 +185,7 @@ export const Editor = ({
 
             language: language,
             automaticLayout: true,
+            dropIntoEditor:{enabled: false,},
             theme: theme,
             fontFamily: " Consolas, 'Courier New', monospace",
             // fontWeight: "medium",
@@ -285,7 +287,9 @@ export const Editor = ({
   }
 
   return (
-    <div style={{ height: "100%", marginTop: 5 }}>
+    <Card style={{ height: "100%", position:'relative', paddingTop: 5,
+      paddingBottom: 5,
+       }}>
       <div
         style={{
           display: "flex",
@@ -345,9 +349,9 @@ export const Editor = ({
         </Tooltip>
       </div>
 
-            <div style={{position:'relative', width:'100%', height:"100%"}}>
+            <div style={{position:'relative', width:'100%', height:"92%", }}>
             <div className={styles.Editor} ref={monacoEl}></div>
-      {flag.current && false ?<></>:<Box sx={{ width: "100%", height: "100vh", position: "relative" }}>
+      {flag.current && false ?<></>:<Box sx={{ width: "100%", height: "100%", position: "relative" }}>
           <div
             style={{
               top:'30%',
@@ -362,6 +366,6 @@ export const Editor = ({
           </div>
         </Box>}
         </div>
-    </div>
+    </Card>
   );
 };

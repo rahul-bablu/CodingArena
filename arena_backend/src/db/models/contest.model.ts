@@ -1,14 +1,16 @@
 import {
-  Model, DataTypes, HasManyCountAssociationsMixin,
+  DataTypes,
   HasManyAddAssociationMixin, HasManyAddAssociationsMixin,
-  HasManyGetAssociationsMixin,
+  HasManyCountAssociationsMixin,
   HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
   HasManyHasAssociationMixin,
-  HasManyRemoveAssociationMixin
+  HasManyRemoveAssociationMixin,
+  Model
 } from 'sequelize';
 import { sequelize } from '../common';
-import { User } from './user.model';
 import { Problem } from './problem.model';
+import { User } from './user.model';
 
 export enum ContestState {
   MANUAL = 'manual',
@@ -112,3 +114,4 @@ Problem.belongsTo(Contest, {
 });
 
 export { Contest, UserContest };
+

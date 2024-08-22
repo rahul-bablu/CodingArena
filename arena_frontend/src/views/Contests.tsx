@@ -1,14 +1,17 @@
 import {
-    Box,
-    Button,
-    Card,
-    Typography,
-  } from "@mui/material";
-  import Navbar from "../components/common/Navbar";
-  import { useEffect, useState } from "react";
-  import Axios from "axios";
-  import { useNavigate } from "react-router-dom";
+  Box,
+  Button,
+  Card,
+  Typography,
+} from "@mui/material";
+import Axios from "axios";
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/Auth/AuthProvider";
+import Navbar from "../components/common/Navbar";
   // import { useAuth } from "../components/Auth/AuthProvider";
+  import AccessTimeIcon from '@mui/icons-material/AccessTime';
   
   const Timer = ({ deadline }: { deadline: string }) => {
     const [days, setDays] = useState(0);
@@ -19,8 +22,8 @@ import {
     // const deadline = ;
   
     const getTime = (deadline: string) => {
-      const time = Date.parse(deadline) - Date.now();
-  
+      const time = Math.max(Date.parse(deadline) - Date.now(), 0);
+      // setTimeLeft(time);
       setDays(Math.floor(time / (1000 * 60 * 60 * 24)));
       setHours(Math.floor((time / (1000 * 60 * 60)) % 24));
       setMinutes(Math.floor((time / 1000 / 60) % 60));
@@ -42,67 +45,17 @@ import {
           display: "flex",
           // borderRadius: 10,
           fontSize: 14,
-          alignItems: 'center',
+          alignItems: 'baseline',
           textAlign: "center",
           // border: "2px solid #AAAA",
-          width: "115px",
+          // width: "115px",
         }}
       >
-        <div className="col-4" style={{ width: "25%", float: "left" }}>
-          <div
-            className="box"
-            style={{
-              borderRight: "solid 1px rgba(255, 255, 255, 0.2)",
-              fontWeight: 300,
-              paddingInline: "10px",
-            }}
-          >
-            <p id="day">{days < 10 ? "0" + days : days}</p>
-            {/* <span className="text">Days</span> */}
-          </div>
-        </div>
-        :
-        <div className="col-4" style={{ width: "25%", float: "left" }}>
-          <div
-            className="box"
-            style={{
-              borderRight: "solid 1px rgba(255, 255, 255, 0.2)",
-              fontWeight: 300,
-              paddingInline: "10px",
-            }}
-          >
-            <p id="hour">{hours < 10 ? "0" + hours : hours}</p>
-            {/* <span className="text">Hours</span> */}
-          </div>
-        </div>
-        :
-        <div className="col-4" style={{ width: "25%", float: "left" }}>
-          <div
-            className="box"
-            style={{
-              borderRight: "solid 1px rgba(255, 255, 255, 0.7)",
-              fontWeight: 300,
-              paddingInline: "10px",
-            }}
-          >
-            <p id="minute">{minutes < 10 ? "0" + minutes : minutes}</p>
-            {/* <span className="text">Minutes</span> */}
-          </div>
-        </div>
-        :
-        <div className="col-4" style={{ width: "25%", float: "left" }}>
-          <div
-            className="box"
-            style={{
-              borderRight: "solid 1px rgba(255, 255, 255, 0.2)",
-              fontWeight: 300,
-              paddingInline: "10px",
-            }}
-          >
-            <p id="second">{seconds < 10 ? "0" + seconds : seconds}</p>
-            {/* <span className="text">Seconds</span> */}
-          </div>
-        </div>
+        <AccessTimeIcon fontSize="medium" sx={{paddingInline: "5px", transform: 'translate(0px, 2px)'}}/>
+            <p > Starts in {days < 10 ? "0" + days : days}d  {hours < 10 ? "0" + hours : hours}h {minutes < 10 ? "0" + minutes : minutes}m {seconds < 10 ? "0" + seconds : seconds}s</p>
+           
+        
+        
       </div>
     );
   };
@@ -113,6 +66,7 @@ import {
     //   { title: "This should not appier", id: 0 },
     // ]);
     const [qs, setQs] = useState<any>([]);
+    const { user } = useAuth()!;
     // const { user } = useAuth()!;
   
     const navigate = useNavigate();
@@ -134,21 +88,72 @@ import {
       <div >
         <Navbar />
         <Box
-          display={"flex"}
           // alignItems="center"/
         >
-          <div style={{ width: "100%" }}>
+          <div style={{ width: "100%", display: 'flex', flexWrap: 'wrap', maxWidth: '1000px', margin: 'auto' }}>
             {
               qs.map(
-                ({ title, id, registred, startTime, state }: { title: string; id: number, registred:boolean, startTime:string, state: string }, index: number) => (
+                ({ title, id, registred, startTime, state, uended }: { title: string; id: number, registred:boolean, startTime:string, state: string, uended: boolean }, index: number) => (
+                  !registred?<></>:
+                  <Card
+                    
+                    // variant="outlined"
+                    sx={{
+                      fontFamily: "sans-serif",
+                      margin: "auto",
+                      width: "450px",
+                      marginY: "10px",
+                      transition: 'box-shadow 0.3s',
+                      '&:hover': {
+                        boxShadow: 6,
+                      },
+                    }}
+                    key={id}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        margin: 0,
+                        padding: 20,
+                      paddingTop:25,
+                      }}
+                    >
+                      <div >
+                      <Timer deadline={startTime} />
+                      <Typography sx={{paddingBottom: 1, fontWeight: 600, fontSize: '18px'}}>
+                        {title} {"\n"}
+                      </Typography>
+                      <Typography sx={{fontFamily: '"M PLUS Rounded 1c", sans-serif', fontSize: '14px'}}>{dayjs(startTime).format('dddd, MMMM D, YYYY h:mm A')}</Typography>
+                      
+                      </div>
+                      {uended?<Button size="small" variant="outlined" disabled>Submited</Button>: state === "inactive" && (Date.parse(startTime) - Date.now() > 0) ? <Timer deadline={startTime} />: <Button  variant="contained"onClick={() => navigate(`/test/${id}`)} >Enter</Button>}
+                      
+                      
+                      
+                    </div>
+                  </Card>
+  )
+              )
+              // JSON.stringify(qs)
+            }
+          </div>
+          {/* <div style={{ width: "100%" }}>
+            {
+              qs.map(
+                ({ title, id, registred, startTime, state, uended }: { title: string; id: number, registred:boolean, startTime:string, state: string, uended: boolean }, index: number) => (
+                  !registred?<></>:
                   <Card
                     
                     variant="outlined"
+                    
                     sx={{
                       fontFamily: "sans-serif",
                       margin: "auto",
                       width: "80%",
                       marginY: "10px",
+                      
                     }}
                     key={id}
                   >
@@ -168,10 +173,56 @@ import {
                       </Typography>
                       <Typography fontSize={11}>This is a short desc if needed</Typography>
                       </div>
-                      {state === "inactive" && (Date.parse(startTime) - Date.now() > 0) ? <Timer deadline={startTime} />: <Button  variant="contained"onClick={() => navigate(`/test/${id}`)} >Enter</Button>}
-                      {/* <div>
+                      {uended?<Button size="small" variant="outlined" disabled>Submited</Button>: state === "inactive" && (Date.parse(startTime) - Date.now() > 0) ? <Timer deadline={startTime} />: <Button  variant="contained"onClick={() => navigate(`/test/${id}`)} >Enter</Button>}
+                     
+                      
+                      
+                    </div>
+                  </Card>
+  )
+              )
+              // JSON.stringify(qs)
+            }
+          </div> */}
+          
+          <div style={{ width: "100%" }}>
+           <div style={{fontWeight: 600, margin: "auto", fontSize: '18px',fontFamily: '"M PLUS Rounded 1c", sans-serif',
+                      width: "80%",}}>Featured Contests</div>
+            {
+              qs.map(
+                ({ title, id, registred, startTime, state, uended }: { title: string; id: number, registred:boolean, startTime:string, state: string, uended: boolean }, index: number) => (
+                  registred?<></>:
+                  <Card
+                    
+                    variant="outlined"
+                    sx={{
+                      fontFamily: "sans-serif",
+                      margin: "auto",
+                      width: "80%",
+                      marginY: "10px",
+                    }}
+                    key={id}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        margin: 0,
+                        padding: 20,
+                      paddingTop:25,
+                      }}
+                    >
+                      <div >
+                      <Typography sx={{paddingBottom: 1}}>
+                        {index + 1}. {title} {"\n"}
+                      </Typography>
+                      </div>
+                      <div>
                         {registred? <Button size="small" variant="outlined" disabled>Registered..</Button>:<Button size="small" variant="contained" color="success" onClick={handleRegister}>Register</Button>}
-                      </div> */}
+                      </div>
+                      
                       {/* <div>
                       <Button size="small" color="info" variant="contained">
                         Edit
@@ -182,12 +233,11 @@ import {
                       </div> */}
                     </div>
                   </Card>
-                )
+  )
               )
               // JSON.stringify(qs)
             }
           </div>
-          
         </Box>
         {/* <div style={{margin:'auto', width:'80%'}}>
           { user=='user1' || true?<div style={{marginLeft:'auto',marginRight:0, width:100}}><Button sx= {{margin: 'auto', width: 90}} color="success" variant="contained"><Create /></Button></div>:<>Hi</>}

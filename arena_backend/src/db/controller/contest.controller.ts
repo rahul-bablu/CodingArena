@@ -1,11 +1,11 @@
-import { Router, Request, Response, NextFunction } from "express";
-import * as contestService from '../services/contest.service';
-import { Contest } from "../models/contest.model";
-import * as problemService from '../services/problem.service';
+import { NextFunction, Request, Response, Router } from "express";
 import { Op, col, fn, literal } from "sequelize";
-import { User } from "../models/user.model";
-import { Problem } from "../models/problem.model";
 import { allowAdmin } from "../../_middleware/authorize";
+import { Contest, UserContest } from "../models/contest.model";
+import { Problem } from "../models/problem.model";
+import { User } from "../models/user.model";
+import * as contestService from '../services/contest.service';
+import * as problemService from '../services/problem.service';
 const router = Router()
 
 router.post('/create', async (req: Request, res: Response, next: NextFunction) => {
@@ -129,6 +129,9 @@ router.get('/problems/user', async (req: Request, res: Response, next: NextFunct
             const userId = (req as any).user.id; // it has because of authorize middleware
             // TODO: validate contetst id type
             const c = await contestService.getContest(parseInt(req.query.contestId as string))
+            const uc = await UserContest.findOne({where: {ContestId: c.id, UserId: userId}});
+            if (!uc) return "User have to be registred"
+            if (uc.end == true) return "User has already ended the contest"
             if (c.state == 'end') return res.send({ error: 'Contest has ended' })
             if (c.state == 'manual')
                 return res.send({ error: 'Contest is not active' })
@@ -167,17 +170,17 @@ query: {
 }
 */
 
-router.get('/user', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/user', async (req: any, res: Response, next: NextFunction) => {
     try {
         // TODO: error check
-        const { userId } = req.query;
+        const { id: userId } = req.user as User;
         const contests = await Contest.findAll({ where:  {state: {[Op.in]:['active', 'manualactive', 'inactive']} ,}, });
-
         res.json(
             await Promise.all(
                 contests.map(
-                    async (c, index) =>
-                        ({ id: c.id, title: c.title, registred: await c.hasUser(parseInt(userId as string)), state: c.state, startTime: c.startTime, endTime: c.endTime })
+                    async (c, index) => {
+                        const uc = await UserContest.findOne({where: {ContestId: c.id, UserId: userId}});
+                        return ({ id: c.id, title: c.title, registred: uc != null, state: c.state, startTime: c.startTime, endTime: c.endTime, uended: (uc && uc.end) || false})}
                 )
             )
         );

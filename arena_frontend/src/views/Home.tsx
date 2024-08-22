@@ -2,19 +2,17 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
   Checkbox,
-  Fade,
   FormControlLabel,
   Grow,
   Skeleton,
-  Typography,
+  Typography
 } from "@mui/material";
-import Navbar from "../components/common/Navbar";
-import { useContext, useEffect, useState } from "react";
 import Axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertContext } from "../components/common/AlertProvider";
+import Navbar from "../components/common/Navbar";
 
 const Home = () => {
   const [qs, setQs] = useState<any>([

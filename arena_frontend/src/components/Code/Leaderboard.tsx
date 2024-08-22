@@ -46,6 +46,7 @@ interface LeaderboardProps {
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { TransitionProps } from "@mui/material/transitions";
+import { useAuth } from "../Auth/AuthProvider";
 
 interface Problem {
   id: number;
@@ -82,6 +83,7 @@ function ShowCode({
   userId: number;
   problemId: number;
 }) {
+  const {userObj} = useAuth()!;
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const [subCode, setsubCode] = useState("");
@@ -89,19 +91,20 @@ function ShowCode({
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleClickOpen = () => {
-    setOpen(true);
+    Axios.get(
+      `/api/problem/user/submission?userId=${userId}&problemId=${problemId}`
+    ).then(({data}) => {console.log(data); setsubCode(data)}).catch((_e)=>{
+      // alert(e+'in show code')
+      setsubCode("Couldn't load submission code");
+    }).finally(()=>{setOpen(true)});
+    
   };
 
   const handleClose = () => {
     setOpen(false);
   };
   useEffect(() => {
-    Axios.get(
-      `/api/problem/user/submission?userId=${userId}&problemId=${problemId}`
-    ).then(({data}) => {console.log(data); setsubCode(data)}).catch((_e)=>{
-      // alert(e+'in show code')
-
-    });
+    
   }, []);
 
   return (
@@ -112,6 +115,7 @@ function ShowCode({
         color="success"
         variant="contained"
         size="small"
+        disabled={userId.toString()!=userObj!.id && userObj?.role == 'user'} // TODO: handle
       >
         Show code
       </Button>

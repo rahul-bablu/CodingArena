@@ -1,7 +1,8 @@
 import { Box, Button, Card, Typography } from "@mui/material";
 import Axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { AlertContext } from "../components/common/AlertProvider";
 import Navbar from "../components/common/Navbar";
 
 /*
@@ -13,7 +14,7 @@ const Problems = () => {
   // TODO: Handle NaN
   const [qs, setQs] = useState<any>([]);
   const [contestTitle, setContestTitle] = useState("");
-
+  const alert = useContext(AlertContext);
   const navigate = useNavigate();
   useEffect(() => {
     (async () => {
@@ -31,7 +32,10 @@ const Problems = () => {
       <Navbar />
       <Box display={"flex"}>
         <div style={{ width: "80%", margin: "auto" }}>
-          <Typography fontSize={"2rem"}>{contestTitle}</Typography>
+          <div>
+            <Typography fontSize={"2rem"}>{contestTitle}</Typography>
+            
+          </div>
           {qs ? (
             qs.map(
               (
@@ -41,12 +45,14 @@ const Problems = () => {
                   solved,
                   maxScore,
                   tried,
+                  attempted,
                 }: {
                   title: string;
                   id: number;
                   solved: boolean;
                   maxScore: number;
                   tried: number;
+                  attempted: number;
                 },
                 index: number
               ) => (
@@ -98,13 +104,14 @@ const Problems = () => {
                       <Button
                         sx={{ marginInline: 4, width: "100%" }}
                         color="success"
-                        variant="contained"
+                        variant={!attempted ? "contained" : "outlined"}
                         onClick={async () => {
                           navigate(`/test/problem/${problemId}`);
                         }}
                         disabled={solved}
+                        size="large"
                       >
-                        {solved ? "Solved" : "Solve"}
+                        {solved ? "Solved" : attempted ? "Try Again" : "Solve"}
                       </Button>
                     </div>
                   </div>
@@ -124,6 +131,26 @@ const Problems = () => {
               No Problems to display...
             </div>
           )}
+          <div style={{margin: 'auto', width: 'max-content'}}>
+          <Button
+          size="large"
+          sx={{width: '200px'}}
+              variant="contained"
+              onClick={async () => {
+                try {
+                const res = await Axios.post(
+                  `/api/users/endcontest?contestId=${contestId}`
+                );
+                alert?.showAlert(res.data, "success")
+              } catch (e ) {
+                console.log((e))
+                alert?.showAlert((e as any).message as string, "error")
+              }
+              }}
+            >
+              Submit
+            </Button>
+            </div>
         </div>
       </Box>
     </div>

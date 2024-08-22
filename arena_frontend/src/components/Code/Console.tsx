@@ -2,6 +2,7 @@ import { Button, Card, LinearProgress, Switch, TextField } from "@mui/material";
 import Axios from "axios";
 import { memo, useContext, useState } from "react";
 import { AlertContext } from "../common/AlertProvider";
+import BaseBox from "../common/BaseBox";
 
 const getCode = (problemId:number, lang: string) => {
   let storageData = JSON.parse(localStorage.getItem('autoSavedCodes')|| '{}');
@@ -25,25 +26,25 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
   const [custominp, setCustomInp] = useState(false);
 
   return (
-    <div
+    <BaseBox
       style={{
         borderBlockStart: "2px solid rgb(240,240,240)",
         borderRadius: 10,
         position: "relative",
         height: "100%",
-        overflowY:'scroll',
-        backgroundColor: "rgb(250, 250, 250)",
+        overflowY:'auto',
       }}
     >
       <div style={{}}>
-        <div
+        <BaseBox
           style={{
             paddingBlock: 4,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            borderBottom: "1px solid rgb(200,200,200)",
-            backgroundColor: "white",
+          
+            borderBottom: "1px solid",
+            // backgroundColor: "white",
             width: "100%",
           }}
         >
@@ -120,7 +121,7 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
               Submit
             </Button>
           </div>
-        </div>
+        </BaseBox>
         {loading ? <LinearProgress /> : <></>}
         <div >
           <div style={{ margin: 15 }}>
@@ -173,7 +174,7 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
           </div>
         </div>
       </div>
-    </div>
+    </BaseBox>
   );
 });
 

@@ -1,10 +1,13 @@
 import { Logout } from "@mui/icons-material";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { Avatar, Button, Divider, ListItemIcon, Menu, MenuItem } from "@mui/material";
+import { Avatar, Box, Button, Divider, lighten, ListItemIcon, Menu, MenuItem, styled } from "@mui/material";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import style from "./Navbar.module.css";
+
+// import Logo from '../../../public/plogo_for_cc.svg';
+import './Navbar.module.css';
 
 function UserDisplay({ user, logOut }: { user: string, logOut:()=>void }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -52,6 +55,39 @@ function UserDisplay({ user, logOut }: { user: string, logOut:()=>void }) {
   );
 }
 
+const NavButton = styled(Button)(({ theme }) => ({
+  textTransform: 'none', // Remove uppercase transformation
+  color: theme.palette.text.primary, // Use the primary text color
+  position: 'relative',
+  paddingInline: '10px',
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    width: '0',
+    height: '2px',
+    display: 'block',
+    marginTop: '20px',
+    right: '0',
+    background: theme.palette.text.primary,
+    transition: 'width 0.3s ease',
+  },
+  '&:hover::after': {
+    width: '95%',
+    left: '0',
+    backgroundColor: theme.palette.text.primary,
+  },
+}));
+
+const NavBox = styled(Box)(({ theme }) => ({
+  backgroundColor: lighten( theme.palette.primary.main, 0.09),
+  color: theme.palette.text.primary,
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  position: 'sticky',
+  display: 'flex',
+  justifyContent: "space-around",
+  top: 0,
+}));
+
 const Navbar = () => {
   const pages = ["Problems", "Contests"];
   const move = ["/", "/contests"] as string[];
@@ -60,7 +96,8 @@ const Navbar = () => {
   const { user, logOut } = useAuth() || { user: undefined };
 
   return (
-    <nav className={style.nav}>
+    <NavBox>
+    <nav className={""} style={{}}>
       
       {user ? <UserDisplay user={user} logOut={logOut} /> : location.pathname == '/login' ? <></> :<Link to="/login">Login</Link>}
       <div
@@ -72,41 +109,40 @@ const Navbar = () => {
       >
         Coding Arena
       </div>
+      {/* <Logo /> */}
+      {/* <img src={Logo} width={100}/> */}
       {move.find((path) => location.pathname == path) ? (
-        <div
-          style={{
-            display: "flex",
-            fontFamily: "sans-serif",
-            justifyContent: "space-evenly",
-            gap: 10,
-          }}
-        >
+        <div className={style.nav}>
+        
           {pages.map((page, index) => (
-            <div
-              style={{ position: "relative" }}
-              className={style.navMenuItem}
-              onClick={() => navigate(move[index])}
-            >
-              {page}
+            <NavButton onClick={() => navigate(move[index])}>{page}</NavButton>
+            // <a href={move[index]} >{page}</a>
+            // <div
+            //   style={{ position: "relative" }}
+            //   className={style.navMenuItem}
+            //   onClick={() => navigate(move[index])}
+            // >
+            //   {page}
 
-              <div
-                style={{
-                  position: "absolute",
-                  margin: "auto",
-                  bottom: -16,
-                  transition: "width 2s",
-                  width: location.pathname == move[index] ? "100%" : "0%",
-                  backgroundColor: "black",
-                  height: "4px",
-                }}
-              ></div>
-            </div>
+            //   <div
+            //     style={{
+            //       position: "absolute",
+            //       margin: "auto",
+            //       bottom: -16,
+            //       transition: "width 2s",
+            //       width: location.pathname == move[index] ? "100%" : "0%",
+            //       backgroundColor: "black",
+            //       height: "4px",
+            //     }}
+            //   ></div>
+            // </div>
           ))}
         </div>
       ) : (
         <></>
       )}
     </nav>
+    </NavBox>
   );
 };
 
