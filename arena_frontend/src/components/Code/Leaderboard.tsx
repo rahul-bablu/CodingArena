@@ -76,7 +76,7 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function ShowCode({
+export function ShowCode({
   userId,
   problemId,
 }: {
@@ -84,6 +84,7 @@ function ShowCode({
   problemId: number;
 }) {
   const {userObj} = useAuth()!;
+  console.log(useAuth())
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const [subCode, setsubCode] = useState("");
@@ -104,7 +105,7 @@ function ShowCode({
     setOpen(false);
   };
   useEffect(() => {
-    
+    // console.log(userObj)
   }, []);
 
   return (
@@ -164,9 +165,9 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({ data }) => {
 
   return (
     <Box sx={{ padding: 2, maxWidth: "1024px", margin: "auto" }}>
-      <Typography variant="h4" gutterBottom>
+      <div style={{marginInline: 'auto', width:'max-content'}}><Typography variant="h4" gutterBottom >
         Leaderboard
-      </Typography>
+      </Typography></div>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -261,7 +262,7 @@ const Leaderbord = () => {
   useEffect(() => {
     (async () => {
       const { data } = await Axios.get(`/api/contest/leaderbord/${contestId}`);
-      console.log(JSON.stringify(data));
+      console.log(data);
       setQs(data);
     })();
   }, []);

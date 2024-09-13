@@ -1,29 +1,22 @@
 import {
-  AppBar,
   Box,
-  Button,
   CircularProgress,
   createTheme,
   CssBaseline,
-  IconButton,
   Switch,
-  ThemeProvider,
-  Toolbar,
-  Typography,
+  ThemeProvider
 } from "@mui/material";
 import React, { Suspense, useState } from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 
-import MenuIcon from "@mui/icons-material/Menu";
 import "./App.css";
 import AuthProvider from "./components/Auth/AuthProvider";
 import PrivateRoute from "./components/Auth/PrivateRouter";
 import Leaderbord from "./components/Code/Leaderboard";
 import AlertProvider from "./components/common/AlertProvider";
 import AdvanceEditProblem from "./views/AdvanceEditProblem";
-import Contests from "./views/Contests";
+import Contests from "./views/Contests/Contests";
 import EditProblems from "./views/EditProblems";
-import Tmp from "./views/LabCom";
 import FullScreenComponent, { ContestLandingPage } from "./views/Test";
 import { UserSubs } from "./views/UserSubs";
 const ProblemsPage = React.lazy(() => import("./views/Problems"));
@@ -31,8 +24,14 @@ const HomePage = React.lazy(() => import("./views/Home"));
 const CodePage = React.lazy(() => import("./views/Code"));
 const LoginPage = React.lazy(() => import("./components/Login/Login"));
 const EditContestsPage = React.lazy(() => import("./views/EditContests"));
+const EditUsersPage = React.lazy(() => import("./views/EditUsers"));
 
 import { styled } from "@mui/system";
+import Axios from "axios";
+import AdminHome from "./components/AdminViews/AdminHome";
+import ViewSubmissions from "./components/AdminViews/ViewSubmissions";
+import AdminRoute from "./components/Auth/AdminRouts";
+import AdminCodeRunner from "./views/AdminCodeRunner";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -42,13 +41,10 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
     children: [
-      {
-        path: "/",
-        element: <HomePage />,
-      },
+      
       {
         path: "/lab",
-        element: <Tmp />,
+        element: <AdminCodeRunner />,
       },
       {
         path: "/login",
@@ -57,6 +53,10 @@ const router = createBrowserRouter([
       {
         element: <PrivateRoute />,
         children: [
+          {
+            path: "/",
+            element: <HomePage />,
+          },
           {
             path: "/code/:id",
             element: <CodePage />,
@@ -82,18 +82,6 @@ const router = createBrowserRouter([
             element: <Leaderbord />,
           },
           {
-            path: "/admin/contests",
-            element: <EditContestsPage />,
-          },
-          {
-            path: "/admin/problems/:id",
-            element: <EditProblems />,
-          },
-          {
-            path: "/admin/problems/advance/:id",
-            element: <AdvanceEditProblem />,
-          },
-          {
             path: "/test/:id",
             element: <ContestLandingPage />,
           },
@@ -113,6 +101,36 @@ const router = createBrowserRouter([
               </FullScreenComponent>
             ),
           },
+          {
+            element: <AdminRoute />,
+            children:[
+              {
+                path: "/admin/home",
+                element: <AdminHome />,
+              },
+              {
+                path: "/admin/viewsubmissions",
+                element: <ViewSubmissions />,
+              },
+              {
+                path: "/admin/contests",
+                element: <EditContestsPage />,
+              },
+              {
+                path: "/admin/users",
+                element: <EditUsersPage />,
+              },
+              {
+                path: "/admin/problems/:id",
+                element: <EditProblems />,
+              },
+              {
+                path: "/admin/problems/advance/:id",
+                element: <AdvanceEditProblem />,
+              },
+            ],
+          }
+          
         ],
       },
     ],
@@ -121,17 +139,12 @@ const router = createBrowserRouter([
 const lightTheme = createTheme({
   palette: {
     mode: "light",
-    primary: {
-      main: "#ffffff", // White color for AppBar
-    },
+    
     secondary: {
       main: "#f3f3f3", // Grey color
     },
     background: {
       default: "#f5f5f5", // Light grey background
-    },
-    text: {
-      primary: "#000000", // Black text for contrast on white AppBar
     },
   },
   components: {
@@ -139,20 +152,21 @@ const lightTheme = createTheme({
       styleOverrides: {
         containedPrimary: {
           color: '#fff', // Text color for primary buttons
-          backgroundColor: '#1976d2', // Background color for primary buttons
+          backgroundColor: '#4a90e2', // Background color for primary buttons
           '&:hover': {
-            backgroundColor: '#1565c0', // Background color on hover for primary buttons
+            
+            backgroundColor: '#7a70f2', // Background color on hover for primary buttons
           },
         },
-        outlinedPrimary: {
-          color: '#1976d2',
-          border: '1px solid #1976d2',
-          '&:hover': {
-            backgroundColor: '#ccc', // Background color on hover for primary buttons
-            color: '#1565c0',
-            border: '1px solid #1976d2',
-          },
-        }
+        // outlinedPrimary: {
+        //   color: '#222',
+        //   border: '1px solid #222',
+        //   '&:hover': {
+        //     backgroundColor: '#eee', // Background color on hover for primary buttons
+        //     color: '#111',
+        //     border: '1px solid #111',
+        //   },
+        // }
       },
     },
     MuiAppBar: {
@@ -179,18 +193,12 @@ const lightTheme = createTheme({
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: {
-      main: "#111111", // Black color for AppBar
-      
-    },
+    
     secondary: {
       main: "#424242", // Grey color
     },
     background: {
       default: "#252525", // Dark grey background
-    },
-    text: {
-      primary: "#ffffff", // White text for contrast on black AppBar
     },
   },
 
@@ -222,45 +230,6 @@ const darkTheme = createTheme({
   },
 });
 
-// Define styled component for NavButtons with underline effect on hover
-const NavButton = styled(Button)(({ theme }) => ({
-  textTransform: "none", // Remove uppercase transformation
-  color: theme.palette.text.primary, // Use the primary text color
-  position: "relative",
-  "&::after": {
-    content: '""',
-    position: "absolute",
-    width: "0",
-    height: "2px",
-    display: "block",
-    marginTop: "15px",
-    right: "0",
-    background: theme.palette.text.primary,
-    transition: "width 0.3s ease",
-  },
-  "&:hover::after": {
-    width: "100%",
-    left: "0",
-    backgroundColor: theme.palette.text.primary,
-  },
-}));
-
-// Define the custom navigation bar component
-const NavBar = () => (
-  <AppBar position="static">
-    <Toolbar sx={{ minHeight: 0, maxHeight: "80px" }}>
-      <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-        <MenuIcon />
-      </IconButton>
-      <Typography variant="h6" sx={{ flexGrow: 1 }}>
-        My App
-      </Typography>
-      <NavButton>Home</NavButton>
-      <NavButton>About</NavButton>
-      <NavButton>Contact</NavButton>
-    </Toolbar>
-  </AppBar>
-);
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -310,7 +279,24 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
 }));
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    Axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+    const savedMode = localStorage.getItem('themeMode') as any | null;
+    setMode(savedMode);
+    // if (savedMode) {
+    // } else {
+    //   const systemPrefersDark = window.matchMedia(
+    //     '(prefers-color-scheme: dark)',
+    //   ).matches;
+    //   setMode(systemPrefersDark ? 'dark' : 'light');
+    // }
+  }, []);
+  const toggleColorMode = (newMode: 'dark'|'light') => {
+    setMode(newMode);
+    localStorage.setItem('themeMode', newMode); 
+  };
   return (
     <Suspense
       fallback={
@@ -328,9 +314,9 @@ function App() {
         </Box>
       }
     >
-      <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
+      <ThemeProvider theme={mode == 'dark' ? darkTheme : lightTheme}>
         <CssBaseline />
-        <MaterialUISwitch sx={{ m: 1, position: 'fixed', bottom: '0', left: '10', zIndex: 10 }} defaultChecked={isDarkMode} onChange={(e: any) => setIsDarkMode(e.target.checked)} />
+        <MaterialUISwitch sx={{ m: 1, position: 'fixed', bottom: '0', left: '10', zIndex: 10 }} defaultChecked={mode == 'dark'} onChange={(e: any) => toggleColorMode((e.target.checked) ?'dark':'light')} />
         <AlertProvider>
         
           <RouterProvider router={router} />

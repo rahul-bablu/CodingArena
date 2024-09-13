@@ -5,6 +5,60 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AlertContext } from "../components/common/AlertProvider";
 import Navbar from "../components/common/Navbar";
 
+// const Timer = ({ deadline,  type}: { deadline: string, type:'start'|'end' }) => {
+//   deadline;type;
+//   // const [days, setDays] = useState(0);
+//   // const [hours, setHours] = useState(0);
+//   // const [minutes, setMinutes] = useState(0);
+//   // const [seconds, setSeconds] = useState(0);
+
+//   // const deadline = ;
+
+//   // const getTime = (deadline: string) => {
+
+//   //   const time = Math.max((type == 'end'?Date.parse(deadline) - Date.now():Date.now() - Date.parse(deadline)), 0);
+//   //   // setTimeLeft(time);
+//   //   setDays(Math.floor(time / (1000 * 60 * 60 * 24)));
+//   //   setHours(Math.floor((time / (1000 * 60 * 60)) % 24));
+//   //   setMinutes(Math.floor((time / 1000 / 60) % 60));
+//   //   setSeconds(Math.floor((time / 1000) % 60));
+//   // };
+
+//   // useEffect(() => {
+//   //   const interval = setInterval(() => getTime(deadline), 1000);
+
+//   //   return () => clearInterval(interval);
+//   // }, []);
+// return <></>
+//   // return (
+//   //   <div
+//   //     className="timer"
+//   //     role="timer"
+//   //     style={{
+//   //       // backgroundColor: "rgba(255, 255, 255, 0.7)",
+//   //       display: "flex",
+//   //       // borderRadius: 10,
+//   //       fontSize: 14,
+//   //       alignItems: "baseline",
+//   //       textAlign: "center",
+//   //       // border: "2px solid #AAAA",
+//   //       // width: "115px",
+//   //     }}
+//   //   >
+//   //     <AccessTimeIcon
+//   //       sx={{ margin: 0, padding: 0, transform: "translate(0px, 5px)" }}
+//   //     />
+//   //     <p>
+//   //       {" "}
+//   //       {days < 10 ? "0" + days : days}d{" "}
+//   //       {hours < 10 ? "0" + hours : hours}h{" "}
+//   //       {minutes < 10 ? "0" + minutes : minutes}m{" "}
+//   //       {seconds < 10 ? "0" + seconds : seconds}s
+//   //     </p>
+//   //   </div>
+//   // );
+// };
+
 /*
   This Page displays the problems of specified contest by contestId
 */
@@ -14,6 +68,9 @@ const Problems = () => {
   // TODO: Handle NaN
   const [qs, setQs] = useState<any>([]);
   const [contestTitle, setContestTitle] = useState("");
+  // const [startTime, setStartTime] = useState('');
+  // const [endTime, setEndTime] = useState('');
+  // const [state, setState] = useState('');
   const alert = useContext(AlertContext);
   const navigate = useNavigate();
   useEffect(() => {
@@ -23,6 +80,9 @@ const Problems = () => {
       );
       setQs(data.problems);
       console.log(data);
+      // setStartTime(data.startTime);
+      // setEndTime(data.endTime);
+      // setState(data.state);
       setContestTitle(data.title);
     })();
   }, []);
@@ -34,7 +94,11 @@ const Problems = () => {
         <div style={{ width: "80%", margin: "auto" }}>
           <div>
             <Typography fontSize={"2rem"}>{contestTitle}</Typography>
-            
+            {/* <div style={{display: 'flex' , alignItems: 'center', gap: '6px'}}>
+
+            {state == 'active' && endTime? <>{"Ends in: "}<Timer deadline={endTime} type={"end"}/></>: <></>} {state == 'manualactive' && startTime?<>{"Started "}<Timer deadline={startTime} type={"start"} /> {" ago"}</>:<></>}
+            </div> */}
+          
           </div>
           {qs ? (
             qs.map(
@@ -139,8 +203,9 @@ const Problems = () => {
               onClick={async () => {
                 try {
                 const res = await Axios.post(
-                  `/api/users/endcontest?contestId=${contestId}`
+                  `/api/users/endcontest`,{contestId: contestId}
                 );
+                navigate('/contests');
                 alert?.showAlert(res.data, "success")
               } catch (e ) {
                 console.log((e))

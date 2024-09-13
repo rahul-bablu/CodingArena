@@ -1,6 +1,6 @@
 import { Logout } from "@mui/icons-material";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { Avatar, Box, Button, Divider, lighten, ListItemIcon, Menu, MenuItem, styled } from "@mui/material";
+import { Avatar, Box, Button, Divider, ListItemIcon, Menu, MenuItem, styled } from "@mui/material";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
@@ -43,7 +43,7 @@ function UserDisplay({ user, logOut }: { user: string, logOut:()=>void }) {
       >
         {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
         <MenuItem onClick={handleClose}>My account</MenuItem> */}
-        <MenuItem onClick={() => navigate('/admin/contests')}><ListItemIcon><AdminPanelSettingsIcon/></ListItemIcon>Admin View</MenuItem>
+        <MenuItem onClick={() => navigate('/admin/home')}><ListItemIcon><AdminPanelSettingsIcon/></ListItemIcon>Admin View</MenuItem>
         <Divider />
         <MenuItem onClick={logOut}><ListItemIcon>
 
@@ -79,13 +79,14 @@ const NavButton = styled(Button)(({ theme }) => ({
 }));
 
 const NavBox = styled(Box)(({ theme }) => ({
-  backgroundColor: lighten( theme.palette.primary.main, 0.09),
+  backgroundColor: theme.palette.mode == 'dark' ? '#333' : '#fff',
   color: theme.palette.text.primary,
   borderBottom: `1px solid ${theme.palette.divider}`,
   position: 'sticky',
   display: 'flex',
   justifyContent: "space-around",
   top: 0,
+  zIndex: 100,
 }));
 
 const Navbar = () => {

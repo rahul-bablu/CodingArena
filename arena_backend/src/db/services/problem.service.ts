@@ -1,8 +1,6 @@
 import path from "path";
 import { Contest } from "../models/contest.model";
-import { Problem, ProblemIO, UserProblems } from "../models/problem.model"
-import { User } from "../models/user.model";
-import { title } from "process";
+import { Problem, ProblemIO } from "../models/problem.model";
 
 export const getAll = async () => {
     return await Problem.findAll({ attributes: ['id', 'title'] });
@@ -59,8 +57,11 @@ async function getProblem(id: number) {
 }
 
 export const create = async (params: { title: string, contestId: number, q: string, input: string, output: string }) => {
-    if (await Problem.findOne({ where: { title: params.title } }))
+    const p = await Problem.findOne({ where: { title: params.title } })
+    if (p){
+        if(params.contestId == (await p.getContest()).id)
         throw 'Problem with same problem exist'
+    }
 
     const contest = await Contest.findByPk(params.contestId);
     if (!contest) throw 'Invalid contest id provided'
@@ -70,13 +71,15 @@ export const create = async (params: { title: string, contestId: number, q: stri
 
 }
 
-export const edit = async (problmeId: number, params: { title: string, q: string }) => {
+export const edit = async (problmeId: number, params: { title: string, q: string, input: string, output: string }) => {
     const p = await Problem.findByPk(problmeId);
 
     if(!p) throw 'Invalid problem id'
 
     p.title = params.title;
     p.q = params.q;
+    p.input = params.input;
+    p.output = params.output;
     await p.save();
 }
 

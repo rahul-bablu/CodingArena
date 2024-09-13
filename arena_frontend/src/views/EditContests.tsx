@@ -220,6 +220,7 @@ const EditContests = () => {
   return (
     <div>
       <Navbar />
+      <div style={{width:'max-content', marginInline:'auto', marginTop:'20px'}}><Typography  sx={{fontWeight:500, fontSize: '25px'}} gutterBottom >Edit Contest</Typography></div>
       <Box
         display={"flex"}
         // alignItems="center"/
@@ -252,9 +253,9 @@ const EditContests = () => {
                       <Typography sx={{ paddingBottom: 1 }}>
                         {index + 1}. {title} {"\n"}
                       </Typography>
-                      <Typography fontSize={11}>
+                      {/* <Typography fontSize={11}>
                         This is a short desc if needed
-                      </Typography>
+                      </Typography> */}
                     </div>
                     {/* <div>
                       {registred? <Button size="small" variant="outlined" disabled>Registered..</Button>:<Button size="small" variant="contained" color="success" onClick={handleRegister}>Register</Button>}

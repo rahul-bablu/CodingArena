@@ -1,3 +1,4 @@
+import { useTheme } from "@mui/material";
 import { useState } from "react";
 import Navbar from "../common/Navbar";
 import SignInForm from "./SignIn";
@@ -5,6 +6,7 @@ import SignUpForm from "./SignUp";
 import style from "./styles.module.css";
 
 export default function Login() {
+  const theam = useTheme()
   const [type, setType] = useState("signIn");
   const handleOnClick = (text:any) => {
     if (text !== type) {
@@ -12,19 +14,20 @@ export default function Login() {
       return;
     }
   };
+  
   return (
     <>
     
     <Navbar/>
-    <div className={style.App}>
+    <div className={style.App} style={{background: theam.palette.background.default, color:theam.palette.text.primary}}>
       <div className={style["container"] + " " + style[(type === "signUp" ? "right-panel-active" : "")]} id="container">
         <SignUpForm />
         <SignInForm />
         <div className={style["overlay-container"]}>
-          <div className={style["overlay"]}>
+          <div className={style["overlay"]} >
             <div className={style["overlay-panel"] + " " + style["overlay-left"]}>
-              <h1 className={style.h1}>Welcome Back!</h1>
-              <p className={style.p}>
+              <h1 className={style.h1} style={{color: theam.palette.background.default}}>Welcome Back!</h1>
+              <p className={style.p} style={{color: theam.palette.background.default}}>
                 To keep connected with us please login with your personal info
               </p>
               <button
@@ -36,8 +39,8 @@ export default function Login() {
               </button>
             </div>
             <div className={style["overlay-panel"]+  " " + style["overlay-right"]}>
-              <h1 className={style["h1"]}>Hello, Coder!</h1>
-              <p className={style.p}>Enter your personal details and start journey with us</p>
+              <h1 className={style["h1"]} style={{color: theam.palette.background.default}}>Hello, Coder!</h1>
+              <p className={style.p} style={{color: theam.palette.background.default}}>Enter your personal details and start journey with us</p>
               <button
                 className={"ghost " + style.button}
                 id="signUp"

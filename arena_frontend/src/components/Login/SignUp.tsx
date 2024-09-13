@@ -1,4 +1,7 @@
-import React from "react";
+import { useTheme } from "@mui/material";
+import Axios from "axios";
+import React, { useContext } from "react";
+import { AlertContext } from "../common/AlertProvider";
 import style from "./styles.module.css";
 
 function SignUpForm() {
@@ -6,7 +9,9 @@ function SignUpForm() {
     name: "",
     email: "",
     password: "",
+    cpassword: "",
   });
+  const theam = useTheme();
   const handleChange = (evt: any) => {
     const value = evt.target.value;
     setState({
@@ -14,14 +19,31 @@ function SignUpForm() {
       [evt.target.name]: value,
     });
   };
-
-  const handleOnSubmit = (evt: any) => {
+  const alert = useContext(AlertContext);
+  const handleOnSubmit = async (evt: any) => {
     evt.preventDefault();
-
-    const { name, } = state;
-    alert(
-      `We can hear you ${name} but we are not taking registrations right now`
-    );
+    if(state.cpassword != state.password) {
+      return alert?.showAlert("Password didn't match with conform password", 'error')
+    }
+    // const { name, } = state;
+    // alert(
+    //   `We can hear you ${name} but we are not taking registrations right now`
+    // );
+    try{
+    const response = await Axios.post("api/users/register", {
+      username: state.name,
+      password: state.password,
+      email: state.email,
+    });
+    if(response.status == 200) {
+      alert?.showAlert(response.data.message, 'success');
+      window.location.reload();
+    } 
+    console.log(response)
+  }catch(e : any) {
+    console.log(e)
+      alert?.showAlert(e.response.data.message, 'error')
+    }
 
     for (const key in state) {
       setState({
@@ -32,7 +54,7 @@ function SignUpForm() {
   };
 
   return (
-    <div className={style["form-container"] + " " + style["sign-up-container"]}>
+    <div className={style["form-container"] + " " + style["sign-up-container"]} style={{background: theam.palette.background.default, color:theam.palette.text.primary}}>
       <form className={style["form"]} onSubmit={handleOnSubmit}>
         <h1 className={style.h1} style={{ paddingBlock: 20 }}>Create Account</h1>
         {/* <div className="social-container">
@@ -49,27 +71,46 @@ function SignUpForm() {
         <span>or use your email for registration</span> */}
         <input
         className={style["input"]}
+        style={{background: theam.palette.secondary.main}}
           type="text"
           name="name"
           value={state.name}
           onChange={handleChange}
           placeholder="Name"
+          required
         />
         <input
         className={style["input"]}
+        style={{background: theam.palette.secondary.main}}
           type="email"
           name="email"
           value={state.email}
           onChange={handleChange}
           placeholder="Email"
+          required
+
         />
         <input
         className={style["input"]}
+        style={{background: theam.palette.secondary.main}}
           type="password"
           name="password"
           value={state.password}
           onChange={handleChange}
           placeholder="Password"
+          required
+
+        />
+        <input
+        className={style["input"]}
+        style={{background: theam.palette.secondary.main}}
+          type="password"
+          name="cpassword"
+          value={state.cpassword}
+          onChange={handleChange}
+          placeholder="Conform Password"
+          required
+
         />
         <button className={style["button"]}>Sign Up</button>
       </form>

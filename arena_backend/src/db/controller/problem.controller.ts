@@ -7,8 +7,8 @@ import util from 'util';
 
 import { Judge0URL } from "../../../config";
 import { allowAdmin } from "../../_middleware/authorize";
-import { UserContest } from "../models/contest.model";
-import { Problem, Submissions, UserProblems } from "../models/problem.model";
+import { Contest, UserContest } from "../models/contest.model";
+import { Problem, ProblemIO, Submissions, UserProblems } from "../models/problem.model";
 import { User } from "../models/user.model";
 import * as problemService from '../services/problem.service';
 const router = Router()
@@ -29,12 +29,21 @@ const upload = multer({ storage: tmpStorage });
 
 router.get('/user/submission', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        // TODO: Seperate admin and user 
         const userId = req.query.userId;
+        const submissionId = req.query.submissionId;
         const problemId = req.query.problemId;
+        if (submissionId) {
+            const s = await Submissions.findOne({ attributes: ['code'], where: { id: submissionId } });
+            console.log(s);
+            if (!s) throw 'ask dev to do something'
+            return res.json(s.code)
+        }
+
         if (!userId || !problemId) throw 'NAPG'
         const up = await UserProblems.findOne({ where: { UserId: userId, ProblemId: problemId } })
         if (!up) throw 'ask dev to do something'
-        const s = await Submissions.findOne({ where: { id: up.accsubid } });
+        const s = await Submissions.findOne({ attributes: ['code'], where: { id: up.accsubid } });
         console.log(s);
         if (!s) throw 'ask dev to do something'
         res.json(s.code)
@@ -94,7 +103,6 @@ const submitToJudge0 = async (sourceCode: string, languageId: number, stdin?: st
         cpu_time_limit,
         memory_limit,
     };
-
     try {
         const response = await Axios.post(Judge0URL + '&wait=true&base64_encoded=true', submissionData, {
             headers: {
@@ -104,6 +112,7 @@ const submitToJudge0 = async (sourceCode: string, languageId: number, stdin?: st
 
         return response.data;
     } catch (error: any) {
+        console.log(error)
         throw "Cann't evaluate the code right now.";
     }
 };
@@ -130,6 +139,30 @@ const lids = {
     typeScript: 74,
 } as any;
 
+router.post('/run/testcase', async (req: any, res: Response, next: NextFunction) => {
+    try {
+
+        if (!req.body.code)
+            throw "No code provided"
+
+        const language_id: number = lids[req.body.lid] as number
+        if (!language_id)
+            throw 'No valid language provided'
+
+        const tc = await ProblemIO.findByPk(req.body.tcid)
+        if (!tc)
+            throw 'No valid language provided'
+
+        let inp = fs.readFileSync(path.join('data', tc.input)), out = fs.readFileSync(path.join('data', tc.output));
+
+        res.json(await runProgram(req.body.code, language_id, inp.toString(), out.toString()));
+
+        // res.json({ output: Buffer.from(data.compile_output || data.stderr || data.stdout || '', 'base64').toString('utf-8'), verdect: data.status.description === "Accepted" && req.body.custominp ? "Result" : data.status.description });
+    } catch (e) {
+        console.log(e)
+        next(e);
+    }
+});
 
 router.post('/run/:problemid', async (req: any, res: Response, next: NextFunction) => {
     const problemid = parseInt(req.params.problemid)
@@ -158,6 +191,7 @@ router.post('/run/:problemid', async (req: any, res: Response, next: NextFunctio
 
         res.json({ output: Buffer.from(data.compile_output || data.stderr || data.stdout || '', 'base64').toString('utf-8'), verdect: data.status.description === "Accepted" && req.body.custominp ? "Result" : data.status.description });
     } catch (e) {
+        console.log(e)
         next(e);
     }
 });
@@ -214,7 +248,7 @@ router.get('/submissions/:id', async (req: any, res: Response, next: NextFunctio
             throw "Invalid problem id"
         let up = await UserProblems.findOne({ where: { UserId: req.user.id, ProblemId: problemid } });
 
-        res.json((await up?.getSubmissions({ attributes: ['verdect', 'score', 'createdAt'] })));
+        res.json((await up?.getSubmissions({ attributes: ['id', 'verdect', 'score', 'createdAt'] })));
     } catch (error) {
         console.error("in problem controller")
         next(error)
@@ -228,7 +262,7 @@ router.post('/submission/:problemid', async (req: any, res: Response, next: Next
     try {
         if (isNaN(problemid))
             throw "Invalid problem id"
-        
+
         if (req.body.lid == undefined)
             throw 'Language ID not provided'
         const language_id: number = lids[req.body.lid] as number
@@ -240,7 +274,7 @@ router.post('/submission/:problemid', async (req: any, res: Response, next: Next
         if (!problem) throw 'No problem with given id'
         const c = await problem.getContest();
         if (c.state != 'active' && c.state != 'manualactive') throw 'Problem contest is not active';
-        
+
         let up = await UserProblems.findOne({ where: { UserId: user.id, ProblemId: problemid } });
         if (up == null) {
             await user.addProblem(problemid, { through: { score: 0 } });
@@ -268,15 +302,19 @@ router.post('/submission/:problemid', async (req: any, res: Response, next: Next
         }
 
         // should the TLE, MLE be Wrong Answers..?
-        const submission = await up.createSubmission({ code: req.body.code, verdect: currentSubmissionScore == maxScore ? "Accepted" : "Wrong Answer", score: currentSubmissionScore, lang: req.body.lid });
+        const submission = await up.createSubmission({
+            code: req.body.code,
+            verdect: currentSubmissionScore == maxScore ? "Accepted" : "Wrong Answer",
+            score: currentSubmissionScore, lang: req.body.lid
+        });
 
         if (up.score <= currentSubmissionScore) {
             // updating the UserProblem table
             user.addProblem(problemid, { through: { score: currentSubmissionScore, accsubid: submission.id } });
 
-            console.log("UP score: ",up.score,)
+            console.log("UP score: ", up.score,)
             if (up.score != currentSubmissionScore) {
-                
+
                 // updating in UserContest table
                 let uc = await UserContest.findOne({ where: { UserId: user.id, ContestId: c.id } })
                 if (uc == null) { // This will be ran in worst case (it means the user has not registred before)
@@ -351,9 +389,10 @@ router.post('/create', allowAdmin(), async (req: Request, res: Response, next: N
             req.body.input == undefined || req.body.output == undefined)
             throw 'Not all params given';
 
-
+        console.log("\n\nHi\n\n")
         res.json(await problemService.create(req.body))
     } catch (error) {
+        console.log("\n\eooro\n\n", error)
         next(error)
     }
 });
@@ -367,10 +406,49 @@ router.delete('/:id', allowAdmin(), async (req: Request, res: Response, next: Ne
     }
 })
 
+router.get('/all/submissions/', async (req: Request, res: Response, next: NextFunction) => {
+    const contestId = parseInt(req.query.contestId as string), userId = parseInt(req.query.userId as string);
+    try {
+        if (isNaN(contestId) && isNaN(userId))
+            throw "Invalid problem id"
+        const contest = await Contest.findByPk(contestId);
+        if (!contest) throw 'Invalid contest ID'
+        const uc = await UserContest.findOne({ where: { UserId: userId, ContestId: contestId } })
+        let resData = { contestState: contest.state }
+        if (!uc) return res.json({ contestState: contest.state, problems: [], userState: -1 });
+        const problems = await contest.getProblems();
+        if (!problems) throw 'Error getting problem'
+        res.json({
+            contestState: contest.state,
+            userState: uc.end ? 1 : 0,
+            problems: await Promise.all(
+                problems.map(
+                    async (p, index) => {
+                        const up = await UserProblems.findOne({ where: { ProblemId: p.id, UserId: userId } });
 
+                        return ({ id: p.id, title: p.title, submissions: await up?.getSubmissions({ attributes: ['id', 'verdect', 'score', 'createdAt'] }) })
+                    }
+                )
+            )
+        })
+        // res.json(await problem.getProblemIOs());
+    } catch (error) {
+        console.error("in problem controller")
+        next(error)
+    }
+})
 
-router.post('io/:id', async (req: Request, res: Response, next: NextFunction) => {
-    res.json({ info: "Not Implemented!" })
+router.get('/io/:id', async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id)
+    try {
+        if (isNaN(id))
+            throw "Invalid problem id"
+        let problem = await problemService.getById(id);
+        res.json(await problem.getProblemIOs());
+    } catch (error) {
+        console.error("in problem controller")
+        next(error)
+    }
 })
 
 export default router;

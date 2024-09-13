@@ -1,6 +1,6 @@
-import Navbar from "../components/common/Navbar";
+import Navbar from "../common/Navbar";
 
-const AdvanceEditProblem = () => {
+const ManageContest = () => {
   // const contestId = parseInt(useParams()["id"] || "");
   // const { user } = useAuth()!;
 
@@ -12,4 +12,4 @@ const AdvanceEditProblem = () => {
   );
 };
 
-export default AdvanceEditProblem;
+export default ManageContest;

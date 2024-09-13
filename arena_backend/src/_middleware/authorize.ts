@@ -1,6 +1,6 @@
-import { secret } from "../../config";
-import express, { Express, Request, RequestHandler, Response } from "express";
+import { Response } from "express";
 import { expressjwt } from "express-jwt";
+import { secret } from "../../config";
 
 
 export function authorize() {
@@ -11,8 +11,10 @@ export function authorize() {
         async (req:any, res:Response, next:any) => {
             // get user with id from token 'sub' (subject) property
             // which has been set while autherization
+            console.log(req.url, req.auth.sub)
             const user = await db.User.findByPk(req.auth.sub);
-
+            if(!user)
+            console.log(user, req.auth.sub)
             // check user still exists
             if (!user)
                 return res.status(401).json({ message: 'Unauthorized require any usere' });
@@ -57,6 +59,6 @@ export function allowAdmin() {
 //     ];
 // }
 
-import db from "../db";import { UserProblems } from "../db/models/problem.model";
+import db from "../db";
 import { UserRole } from "../db/models/user.model";
 

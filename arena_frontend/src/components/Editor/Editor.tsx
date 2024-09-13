@@ -1,31 +1,29 @@
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import {
-  Box,
   Card,
-  CircularProgress,
   FormControl,
   IconButton,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
-  Tooltip,
+  Tooltip
 } from "@mui/material";
 import Axios from "axios";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import styles from "./Editor.module.css";
 
 
 let initLanguages = [
-  ["c", "C (GCC 9.2.0)"],
-  ["cpp", "C++ (GCC 9.2.0)"],
-  ["python", "Python (3.8.1)"],
-  ["javascript", "JavaScript (Node.js 12.14.0)"],
-  ["go", "Go (1.13.5)"],
+  // ["c", "C (GCC 9.2.0)"],
+  // ["cpp", "C++ (GCC 9.2.0)"],
+  // ["python", "Python (3.8.1)"],
+  // ["javascript", "JavaScript (Node.js 12.14.0)"],
+  // ["go", "Go (1.13.5)"],
   ["java", "Java (OpenJDK 13.0.1)"],
-  ["rust", "Rust (1.40.0)"],
-  ["typeScript", "TypeScript (3.7.4)"],
+  // ["rust", "Rust (1.40.0)"],
+  // ["typeScript", "TypeScript (3.7.4)"],
 ];
 
 const initStaterCode: { [key: string]: string } = {
@@ -79,11 +77,11 @@ process.stdin.on("end", function () {
 });`,
 };
 
-let count: number=0;
 export const Editor = ({
   language,
   setLanguage,
   problemId,
+  clipboard: clipbord,
   // getStater,
   // initValue,
   onValueChange,
@@ -93,21 +91,23 @@ export const Editor = ({
   // getStater: (lang: string, force?: boolean) => string;
   // initValue: string;
   problemId: number;
+  clipboard: MutableRefObject<string>;
   onValueChange: (value: string, language: string) => void;
 }) => {
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
-  let clipbord = "";
+  // const clipbord = useRef("");
+  const [loding, setLoding] = useState(true);
   const staterCode = useRef(initStaterCode);
   const [languages, setLanguages] = useState(initLanguages);
   const [theme, setTheme] = useState(
     localStorage.getItem("code-theme") || "vs-dark"
   );
   const cmplang = useRef(language); // this just a copy used for immediate change and computation
-  const flag = useRef(false);
-  
+  // const flag = useRef(false);
   const getFromLocalStorage = (lang:string) => {
+    
     let storageData = JSON.parse(
       localStorage.getItem("autoSavedCodes") || "{}"
     );
@@ -126,6 +126,7 @@ export const Editor = ({
   
   const getStater = (lang: string, force: boolean = false, set: boolean = false) => {
     let storageData = getFromLocalStorage(lang);
+    console.log(storageData, force)
     if(!force && storageData) {
       return storageData;
     } else {
@@ -136,9 +137,6 @@ export const Editor = ({
   };
 
   useEffect(() => {
-    // console.log("editor changed", count);
-    // count++;
-    flag.current = false
     Axios.get(`/api/problem/statercode/${problemId}`, {
       withCredentials: true,
     })
@@ -149,16 +147,17 @@ export const Editor = ({
           // editor?.setValue(getStater(language));
           
         }
-        // console.log(data);
+        console.log(data, JSON.parse(data.scode));
       })
       .catch((_e) => {
-        // alert("Couldn't stater codes" + "error");
+        console.log(_e)
+        alert("Couldn't stater codes" + "error");
         
-      }).finally(()=>{flag.current = true;});
+      }).finally(()=>{setLoding(false)});
   }, [staterCode]);
 
   useEffect(()=>{
-    if(!editor) return;
+    if(loding || !editor) return;
     if (
       languages.reduce(
         (total, num) => (num[0] == cmplang.current ? true : false || total),
@@ -170,13 +169,11 @@ export const Editor = ({
       }
       } else {
       changeLanguage(languages[0][0]);
-      // alert('NP')
     }
   },[languages]);
 
   useEffect(() => {
-    console.log("Trying Editer load");
-    if (monacoEl.current) {
+    if ( monacoEl.current) {
         setEditor((editor) => {
           if (editor) return editor;
           
@@ -198,12 +195,14 @@ export const Editor = ({
       
     }
 
-
     return () => {editor?.dispose();};
   }, [monacoEl]);
 
   useEffect(() => {
+    // if(loding || !editor) return;
+    console.log(editor)
     const triggerPaste = (text: string) => {
+      console.log(clipbord.current)
       if (editor) {
         const position = editor.getPosition()!;
         editor?.executeEdits("", [
@@ -237,7 +236,7 @@ export const Editor = ({
           const selection = editor.getSelection();
           if (selection) {
             const selectedText = model.getValueInRange(selection);
-            clipbord = selectedText;
+            clipbord.current = selectedText;
           }
         }
         // event.preventDefault();
@@ -245,13 +244,13 @@ export const Editor = ({
       }
 
       if (keyCode === 52 && (metaKey || ctrlKey)) {
-        triggerPaste(clipbord);
+        triggerPaste(clipbord.current);
         event.preventDefault();
       }
     });
-
+    console.log("Editor contant change set")
     editor?.onDidChangeModelContent(() => {
-      // console.log(editor.getValue(), "Secound", cmplang.current);
+      console.log(editor.getValue(), "Secound", cmplang.current);
 
       onValueChange(editor.getValue(), cmplang.current);
     });
@@ -260,7 +259,7 @@ export const Editor = ({
     editor?.onDidPaste(() => {
       // alert("No cheating");
       editor.trigger("", "undo", undefined);
-      triggerPaste(clipbord);
+      triggerPaste(clipbord.current);
     });
   }, [editor]);
 
@@ -287,6 +286,7 @@ export const Editor = ({
   }
 
   return (
+    // loding?<></>:
     <Card style={{ height: "100%", position:'relative', paddingTop: 5,
       paddingBottom: 5,
        }}>
@@ -334,7 +334,7 @@ export const Editor = ({
         </div>
         <Tooltip title="Reset to default code">
           <IconButton
-            onClick={() => editor?.setValue(getStater(language, true))}
+            onClick={() => {editor?.setValue("hj"+getStater(language, true)); console.log(staterCode, getStater(language, true))}}
             sx={{
               color: "black",
               "&:hover": {
@@ -350,21 +350,23 @@ export const Editor = ({
       </div>
 
             <div style={{position:'relative', width:'100%', height:"92%", }}>
-            <div className={styles.Editor} ref={monacoEl}></div>
-      {flag.current && false ?<></>:<Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-          <div
-            style={{
-              top:'30%',
-              left: "50%",
-              zIndex: 200,
-              transform: "translate(-50%, -50%)",
-              position: "absolute",
-            }}
-          >
-            <div>Making your editor ready please standby...</div>
-            <div style={{margin:'auto', width:'max-content'}}><CircularProgress /></div>
-          </div>
-        </Box>}
+            
+      {
+      // loding ?<Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      //     <div
+      //       style={{
+      //         top:'30%',
+      //         left: "50%",
+      //         zIndex: 200,
+      //         transform: "translate(-50%, -50%)",
+      //         position: "absolute",
+      //       }}
+      //     >
+      //       <div>Making your editor ready please standby...</div>
+      //       <div style={{margin:'auto', width:'max-content'}}><CircularProgress /></div>
+      //     </div>
+      //   </Box>:
+        <div className={styles.Editor} ref={monacoEl}></div>}
         </div>
     </Card>
   );

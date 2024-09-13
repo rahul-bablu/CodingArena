@@ -23,7 +23,7 @@ export const UserSubs = () => {
             <div style={{fontSize: '18px', fontWeight: 600, }}>Bezawada Vignesh</div>
         </div>
         <div style={{ flexGrow: 1, overflowY:'auto'}}>
-            {subs.map((v, i) => {
+            {subs.map((v, ) => {
                 return <Card sx={{width: '70%' , maxWidth: '700px', margin:'10px auto', padding: '20px'}}>{JSON.stringify(v)}</Card>
             })}
         </div>

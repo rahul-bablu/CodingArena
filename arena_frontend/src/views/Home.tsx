@@ -5,7 +5,6 @@ import {
   Checkbox,
   FormControlLabel,
   Grow,
-  Skeleton,
   Typography
 } from "@mui/material";
 import Axios from "axios";
@@ -15,9 +14,7 @@ import { AlertContext } from "../components/common/AlertProvider";
 import Navbar from "../components/common/Navbar";
 
 const Home = () => {
-  const [qs, setQs] = useState<any>([
-    // { title: "This should not appier", id: 0 },
-  ]);
+  const [qs, setQs] = useState<any>(null);
   const alert = useContext(AlertContext);
   const [notAttempted, setNotAttempted] = useState(false);
   const [showAttempted, setShowAttempted] = useState(false);
@@ -26,7 +23,6 @@ const Home = () => {
     (async () => {
       try {
         const { data } = await Axios.get(`/api/problem?contestId=1`);
-        // console.log(JSON.stringify(data))
         setQs(data);
         alert?.showAlert("Welcome Back Coder!", "info");
       } catch (e) {
@@ -39,7 +35,7 @@ const Home = () => {
     <>
       <Navbar />
       <Box display={"flex"} flexWrap={"wrap-reverse"}>
-        <div style={{ width: "60%", margin: "auto" }}>
+        <div style={{ width: "max(60%, 250px)", margin: "auto" }}>
           {qs ? (
             qs
               .filter((obj: any) => {
@@ -147,16 +143,7 @@ const Home = () => {
                   );
                 }
               )
-          ) : (
-            <>
-              {[...Array(8)].map((e, i) => (
-                <Skeleton
-                  width={"80%"}
-                  sx={{ margin: "auto", marginY: "0px" }}
-                  height={"170px"}
-                ></Skeleton>
-              ))}
-            </>
+          ) : (<></>
           )}
         </div>
         <div style={{ margin: "0 auto" }}>
@@ -199,7 +186,6 @@ const Home = () => {
                     />
                   }
                   label="Not Attempted"
-                  // labelPlacement="end"
                 />
                 <FormControlLabel
                   value="not accepted"
@@ -210,7 +196,6 @@ const Home = () => {
                     />
                   }
                   label="Attempted"
-                  // labelPlacement="end"
                 />
               </div>
             </Card>

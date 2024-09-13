@@ -1,14 +1,14 @@
-import express, { Express } from "express";
-import dotenv from "dotenv";
-import path from 'path';
 import cors from 'cors';
+import dotenv from "dotenv";
+import express, { Express } from "express";
+import path from 'path';
 
 import bodyParser from "body-parser";
-import { errorHandler } from "./_middleware/error-handler";
-import userRouter from "./db/controller/user.controller";
-import problemRouter from "./db/controller/problem.controller";
-import contestRouter from "./db/controller/contest.controller";
 import { authorize } from "./_middleware/authorize";
+import { errorHandler } from "./_middleware/error-handler";
+import contestRouter from "./db/controller/contest.controller";
+import problemRouter from "./db/controller/problem.controller";
+import userRouter from "./db/controller/user.controller";
 
 dotenv.config();
 
@@ -64,7 +64,7 @@ app._router.stack.forEach(print.bind(null, []))
 app.listen(port, async () => {
   try {
     console.log('Initiating Database sync...')
-    // await db.sequelize.sync({force: true});
+    // await sequelize.sync({});
     console.log('Database initiation completed successfully')
     console.log(`[server]: Server is running at http://localhost:${port}`);
   } catch (e) {

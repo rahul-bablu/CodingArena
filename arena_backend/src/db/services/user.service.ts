@@ -1,7 +1,9 @@
-import { User } from "../models/user.model";
-import * as config from "../../../config";
-import * as jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import * as config from "../../../config";
+import { sendEmail } from '../common';
+import { User, VerifyToken } from "../models/user.model";
 
 export async function authenticate({ username, password }: {username:string, password:string}) {
     const user = await User.scope('withHash').findOne({ where: { username } });
@@ -10,7 +12,7 @@ export async function authenticate({ username, password }: {username:string, pas
         throw 'Username or password is incorrect';
 
     // authentication successful
-    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: '7d' });
+    const token = jwt.sign({ sub: user.id, username: user.username, role: user.role }, config.secret, { expiresIn: '7d' });
     return { ...omitHash(user.get()), token };
 }
 
@@ -27,15 +29,47 @@ export async function create(params:{username?:string, password?:string, phash?:
     if (await User.findOne({ where: { username: params.username } })) {
         throw 'Username "' + params.username + '" is already taken';
     }
+    if (await User.findOne({ where: { email: params.email } })) {
+        throw 'Email "' + params.email + '" has already registred';
+    }
 
     // hash password
     if (params.password) {
         params.phash = await bcrypt.hash(params.password, 10);
     }
+    console.log(JSON.stringify(params, null, 2))
 
     // save user
-    await User.create(params);
+    const user = await User.create(params);
+
+    if (user) {
+        let setToken = await VerifyToken.create({
+          userId: user.id,
+          token: crypto.randomBytes(16).toString("hex"),
+        });
+  
+        //if token is created, send the user a mail
+        if (setToken) {
+          //send email to the user
+          //with the function coming from the mailing.js file
+          //message containing the user id and the token to help verify their email
+          sendEmail({
+            to: `${params.email}`,
+            subject: "Account Verification Link",
+            message: `Hello, ${params.username}\n Please verify your email for Coding Arena by clicking this link:\n
+                  ${config.APP_URL}/users/verify-email/${user.id}/${setToken.token} `,
+          });
+  
+          //if token is not created, send a status of 400
+        } else {
+          throw "token not created";
+        }
+  
+      } else {
+        return "Details are incorrect";
+      }
 }
+
 
 export async function update(id:number, params:{username?:string, password?:string, phash?:string}) {
     const user = await getUser(id);

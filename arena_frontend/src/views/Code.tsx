@@ -12,11 +12,13 @@ import {
   styled,
   Tooltip
 } from "@mui/material";
+
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import { DataGrid } from "@mui/x-data-grid";
 import Axios from "axios";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
@@ -182,10 +184,13 @@ export const StyledTab = styled(Tab)(({ theme }) => ({
   },
 }));
 
+import dayjs from "dayjs";
 import Confetti from "react-confetti";
 import BaseBox from "../components/common/BaseBox";
-const Code = () => {
 
+
+const Code = () => {
+  
   
   // TODO: Handle NaN
   const problemId = parseInt(useParams()["id"] || "");
@@ -193,12 +198,22 @@ const Code = () => {
   const navigate = useNavigate();
   const [sizes, setSizes] = useState(["35%", "65%"] as (string | number)[]);
   const [hsizes, setHsizes] = useState(["80%", "20%"] as (string | number)[]);
-
+  const clipboard = useRef('');
   const [submissions, setSubmissions] = useState<any>([]);
+  // const {userObj} = useAuth()!;
   let [language, setLanguage] = useState(
     () => localStorage.getItem("current-lang") || "c"
   );
   const [confettiActive, setConfettiActive] = useState<boolean>(false);
+  const handleClickOpen = (submissionId: any) => {
+    Axios.get(
+      `/api/problem/user/submission?submissionId=${submissionId}`
+    ).then(({data}) => {clipboard.current = data;console.log(clipboard.current);alert?.showAlert('Code copied to clipboard', 'success')}).catch((_e)=>{
+      // alert(e+'in show code')
+      clipboard.current = "Couldn't load submission code";
+    });
+    
+  };
   const getSubmissions = async () => {
     try {
       // const { data } = await Axios.get(`/api/problem/${id}`);
@@ -208,7 +223,7 @@ const Code = () => {
         // withCredentials: true,
       })
         .then(({ data }) => {
-          console.log(data);
+          // console.log(data);
           setSubmissions(data || []);
         })
         .catch((_e) => alert?.showAlert("Couldn't load submissions", "error"));
@@ -232,19 +247,43 @@ const Code = () => {
         </div>
       ) : (
         <DataGrid
+        
           getRowId={(row: any) => row.createdAt}
           columns={[
-            { field: "verdect", headerName: "Verdect", width: 100 },
-            { field: "score", headerName: "Score", width: 60 },
+            { field: "verdect", headerName: "Verdect", flex: 1, },
+            { field: "score", headerName: "Score", 
+              flex: 1,
+             },
             {
               field: "createdAt",
               headerName: "Submission Time",
               width: 200,
+              flex: 2,
+              valueGetter: (value) => {
+                return dayjs(value)
+              }
             },
+            {field:'id',
+              headerName:'Code',
+              flex:1,
+              sortable: false,
+              renderCell: (params) => {
+                const onClick = (e:any) => {
+                  e.stopPropagation();
+                  handleClickOpen(params.row.id);
+                  
+                };
+          
+                return <Tooltip  title={"Copy"} placement="top"><Button onClick={onClick} ><ContentCopyIcon /></Button></Tooltip>;
+              },
+              
+            },
+
           ]}
+          initialState={{pagination: { paginationModel: { pageSize: 5 } }}}
           rows={submissions}
           disableRowSelectionOnClick
-          pageSizeOptions={[5]}
+          pageSizeOptions={[submissions.length == 0? 0: 5]}
           autoHeight
           // slots={{
           //   noRowsOverlay: () => (
@@ -303,7 +342,7 @@ const Code = () => {
           sizes={sizes}
           onChange={setSizes}
           sashRender={undefined}
-          //   resizerSize={5}
+            // resizerSize={7}
         >
           <Pane minSize={100} maxSize="50%" style={{ height: "100%" }}>
             {/* TODO: Code Refactoring */}
@@ -401,6 +440,7 @@ const Code = () => {
                 // getStater={getStater}
                 // initValue={
                 //   getStater(language)}
+                clipboard={clipboard}
                 onValueChange={onValueChange}
               />
             </div>

@@ -1,4 +1,5 @@
 import Axios, { AxiosStatic } from "axios";
+import { jwtDecode } from "jwt-decode";
 import {
   ReactNode,
   createContext,
@@ -18,6 +19,7 @@ type UserData = {
 type User = {
   id:string, 
   role: string,
+  username:string
   // add rest
 }
 
@@ -26,7 +28,7 @@ type AuthContextType = {
   user: string | null;
   userObj: User | null; 
   Axios: AxiosStatic;
-  loginAction: (data: UserData) => Promise<void>;
+  loginAction: (data: {userInfo:UserData, next?: string|null}) => Promise<void>;
   logOut: () => void;
 };
 
@@ -42,11 +44,21 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       Axios.defaults.headers.common["Authorization"] = "Bearer " + token;
       localStorage.setItem("token", token);
-      Axios.get("/api/users/whoami").then(({data})=>{
-        setUser(data.username);
-      }).catch((e)=>{
-        console.log(e)
-      })
+      const tdata = jwtDecode(token)
+      try {
+        let {sub, username, role} = tdata as any;
+        setUser(username);
+        setUserObj({id: sub, username:username, role:role})
+      } catch(e){
+        alert?.showAlert('Error validating the token', 'error')
+        console.log(e);
+      }
+      // Axios.get("/api/users/whoami").then(({data})=>{
+      //   setUser(data.username);
+      //   setUserObj(data);
+      // }).catch((e)=>{
+      //   console.log(e)
+      // })
     } else {
       delete Axios.defaults.headers.common["Authorization"];
       localStorage.removeItem("token");
@@ -55,18 +67,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loginAction = useMemo(
     () =>
-      async ({ username, password }: UserData) => {
+      async ({userInfo:{ username, password }, next}: {userInfo:UserData,next?:string | null } ) => {
         try {
           const response = await Axios.post("api/users/authenticate", {
             username: username,
             password: password,
           });
           if (response.data && response.status == 200) {
-            console.log(response.data);
             setUser(response.data.username);
             setToken(response.data.token);
             setUserObj(response.data);
-            navigate("/");
+            navigate(next == undefined || next == null?'/':next);
             return;
           }
           throw new Error(response.data);

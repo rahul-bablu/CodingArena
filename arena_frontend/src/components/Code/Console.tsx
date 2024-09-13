@@ -27,8 +27,9 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
 
   return (
     <BaseBox
+    // variant="outlined"
       style={{
-        borderBlockStart: "2px solid rgb(240,240,240)",
+        // borderBlockStart: "2px solid rgb(240,240,240)",
         borderRadius: 10,
         position: "relative",
         height: "100%",
@@ -36,14 +37,15 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
       }}
     >
       <div style={{}}>
-        <BaseBox
+        <Card
+        variant="outlined"
           style={{
             paddingBlock: 4,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-          
-            borderBottom: "1px solid",
+            borderRadius: '5px 0px',
+            // borderBottom: "1px solid",
             // backgroundColor: "white",
             width: "100%",
           }}
@@ -121,7 +123,7 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
               Submit
             </Button>
           </div>
-        </BaseBox>
+        </Card>
         {loading ? <LinearProgress /> : <></>}
         <div >
           <div style={{ margin: 15 }}>
