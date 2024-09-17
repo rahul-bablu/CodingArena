@@ -7,6 +7,7 @@ export enum UserRole {
   ADMIN = 'admin',
   USER = 'user',
   DEV = 'dev',
+  // CREATER = 'creater',
 }
 
 class User extends Model {

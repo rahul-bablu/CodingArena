@@ -10,10 +10,10 @@ import {
   IconButton,
   Popper,
   styled,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import { DataGrid } from "@mui/x-data-grid";
@@ -24,7 +24,7 @@ import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import Console from "../components/Code/Console";
 import Question from "../components/Code/Question";
-import { Editor } from "../components/Editor/Editor";
+import { Editor } from "../components/Editor/EditorLab";
 import "../components/Editor/useWorker";
 import { AlertContext } from "../components/common/AlertProvider";
 import Navbar from "../components/common/Navbar";
@@ -81,7 +81,7 @@ const Timer = ({ deadline }: { deadline: string }) => {
           {/* <span className="text">Days</span> */}
         </div>
       </div>
-      
+
       <div className="col-4" style={{ width: "25%", float: "left" }}>
         <div
           className="box"
@@ -95,7 +95,7 @@ const Timer = ({ deadline }: { deadline: string }) => {
           {/* <span className="text">Hours</span> */}
         </div>
       </div>
-      
+
       <div className="col-4" style={{ width: "25%", float: "left" }}>
         <div
           className="box"
@@ -109,7 +109,7 @@ const Timer = ({ deadline }: { deadline: string }) => {
           {/* <span className="text">Minutes</span> */}
         </div>
       </div>
-      
+
       <div className="col-4" style={{ width: "25%", float: "left" }}>
         <div
           className="box"
@@ -158,76 +158,69 @@ function SimplePopper() {
 
 export const StyledTabs = styled(Tabs)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
-  '& .MuiTabs-indicator': {
-    backgroundColor: '#252525',
-    height: '2px'
+  "& .MuiTabs-indicator": {
+    backgroundColor: "#252525",
+    height: "2px",
   },
 }));
 
 export const StyledTab = styled(Tab)(({ theme }) => ({
-  textTransform: 'none',
+  textTransform: "none",
   // minWidth: 72,
   fontWeight: theme.typography.fontWeightRegular,
   marginRight: theme.spacing(4),
   color: theme.palette.text.primary,
-  '&:hover': {
+  "&:hover": {
     color: theme.palette.text.primary,
     opacity: 1,
   },
-  '&.Mui-selected': {
+  "&.Mui-selected": {
     color: darken(theme.palette.text.primary, 0),
     fontWeight: theme.typography.fontWeightBold,
-
   },
-  '&.Mui-focusVisible': {
+  "&.Mui-focusVisible": {
     backgroundColor: theme.palette.primary.light,
   },
 }));
 
 import dayjs from "dayjs";
 import Confetti from "react-confetti";
+import { useAuth } from "../components/Auth/AuthProvider";
 import BaseBox from "../components/common/BaseBox";
 
-
 const Code = () => {
-  
-  
   // TODO: Handle NaN
   const problemId = parseInt(useParams()["id"] || "");
   const alert = useContext(AlertContext);
   const navigate = useNavigate();
   const [sizes, setSizes] = useState(["35%", "65%"] as (string | number)[]);
   const [hsizes, setHsizes] = useState(["80%", "20%"] as (string | number)[]);
-  const clipboard = useRef('');
+  const clipboard = useRef("");
   const [submissions, setSubmissions] = useState<any>([]);
-  // const {userObj} = useAuth()!;
   let [language, setLanguage] = useState(
     () => localStorage.getItem("current-lang") || "c"
   );
   const [confettiActive, setConfettiActive] = useState<boolean>(false);
   const handleClickOpen = (submissionId: any) => {
-    Axios.get(
-      `/api/problem/user/submission?submissionId=${submissionId}`
-    ).then(({data}) => {clipboard.current = data;console.log(clipboard.current);alert?.showAlert('Code copied to clipboard', 'success')}).catch((_e)=>{
-      // alert(e+'in show code')
-      clipboard.current = "Couldn't load submission code";
-    });
-    
+    Axios.get(`/api/problem/user/submission?submissionId=${submissionId}`)
+      .then(({ data }) => {
+        clipboard.current = data;
+        console.log(clipboard.current);
+        alert?.showAlert("Code copied to clipboard", "success");
+      })
+      .catch((_e) => {
+        clipboard.current = "Couldn't load submission code";
+      });
   };
   const getSubmissions = async () => {
     try {
-      // const { data } = await Axios.get(`/api/problem/${id}`);
-      // Axios.defaults.withCredentials = true;
       Axios(`/api/problem/submissions/${problemId}`, {
         method: "GET",
-        // withCredentials: true,
       })
         .then(({ data }) => {
-          // console.log(data);
           setSubmissions(data || []);
         })
         .catch((_e) => alert?.showAlert("Couldn't load submissions", "error"));
-      // console.log(data.q)
     } catch (e) {
       console.log(e);
       alert?.showAlert("Couldn't load submissions", "error");
@@ -247,64 +240,53 @@ const Code = () => {
         </div>
       ) : (
         <DataGrid
-        
           getRowId={(row: any) => row.createdAt}
           columns={[
-            { field: "verdect", headerName: "Verdect", flex: 1, },
-            { field: "score", headerName: "Score", 
-              flex: 1,
-             },
+            { field: "verdect", headerName: "Verdect", flex: 1 },
+            { field: "score", headerName: "Score", flex: 1 },
             {
               field: "createdAt",
               headerName: "Submission Time",
               width: 200,
               flex: 2,
               valueGetter: (value) => {
-                return dayjs(value)
-              }
+                return dayjs(value);
+              },
             },
-            {field:'id',
-              headerName:'Code',
-              flex:1,
+            {
+              field: "id",
+              headerName: "Code",
+              flex: 1,
               sortable: false,
               renderCell: (params) => {
-                const onClick = (e:any) => {
+                const onClick = (e: any) => {
                   e.stopPropagation();
                   handleClickOpen(params.row.id);
-                  
                 };
-          
-                return <Tooltip  title={"Copy"} placement="top"><Button onClick={onClick} ><ContentCopyIcon /></Button></Tooltip>;
-              },
-              
-            },
 
+                return (
+                  <Tooltip title={"Copy"} placement="top">
+                    <Button onClick={onClick}>
+                      <ContentCopyIcon />
+                    </Button>
+                  </Tooltip>
+                );
+              },
+            },
           ]}
-          initialState={{pagination: { paginationModel: { pageSize: 5 } }}}
+          initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
           rows={submissions}
           disableRowSelectionOnClick
-          pageSizeOptions={[submissions.length == 0? 0: 5]}
+          pageSizeOptions={[submissions.length == 0 ? 0 : 5]}
           autoHeight
-          // slots={{
-          //   noRowsOverlay: () => (
-          //     <Box
-          //       display="flex"
-          //       justifyContent="center"
-          //       alignItems="center"
-          //       height={"90%"}
-          //     >
-          //       No Submissions
-          //     </Box>
-          //   ),
-          // }}
-          // sx={{ "--DataGrid-overlayHeight": "300px" }}
         />
       ),
     [submissions]
   );
+  const { user } = useAuth()!;
   function onValueChange(value: string, language: string) {
     let storageData = JSON.parse(
-      localStorage.getItem("autoSavedCodes") || "{}"
+      localStorage.getItem(user + "_autoSavedCodes") || "{}"
     );
 
     // Ensure the structure exists
@@ -315,7 +297,7 @@ const Code = () => {
     storageData[problemId][language] = value;
 
     // Save the updated data back to local storage
-    localStorage.setItem("autoSavedCodes", JSON.stringify(storageData));
+    localStorage.setItem(user + "_autoSavedCodes", JSON.stringify(storageData));
     // localStorage.setItem("current_content", value);
   }
 
@@ -328,32 +310,25 @@ const Code = () => {
       }}
     >
       <Navbar />
-      {/* <Fab sx={{position:'fixed', bottom:20, right:20}} color="info" aria-label="edit" onClick={()=>{}}>
-        <AlarmIcon/>
-      </Fab> */}
       {confettiActive && <Confetti width={window.innerWidth} />}
       <div>
         <SimplePopper />
       </div>
       <div style={{ height: "calc(100vh - 50px)" }}>
-        {/* <div style={{height:100}}></div> */}
         <SplitPane
           split="vertical"
           sizes={sizes}
           onChange={setSizes}
           sashRender={undefined}
-            // resizerSize={7}
         >
           <Pane minSize={100} maxSize="50%" style={{ height: "100%" }}>
             {/* TODO: Code Refactoring */}
-            {/* <Slide in direction="right" timeout={1000}> */}
             <Card
               sx={{
                 height: "100%",
                 margin: "5px 2px 5px 10px",
                 overflowY: "auto",
               }}
-              // variant="outlined"
             >
               <div
                 style={{ width: "10%", marginLeft: 15 }}
@@ -363,7 +338,6 @@ const Code = () => {
                   fontSize="large"
                   sx={{ padding: 1, paddingBottom: 0, display: "inline-block" }}
                 />
-                {/* <Timer /> */}
               </div>
               <div style={{ width: "100%" }}>
                 <Box
@@ -377,7 +351,6 @@ const Code = () => {
                     onChange={(_e, t) => setTab(t)}
                     aria-label="Problem and submissions lables"
                     value={tab}
-                    // style={{display: 'inline-block', justifyContent: 'space-around'}}
                     variant="fullWidth"
                   >
                     <StyledTab label="Problem" value={1} />
@@ -393,29 +366,10 @@ const Code = () => {
                       </IconButton>
                     </Tooltip>
                   </div>
-                  {/* {submissions.map(
-                      ({
-                        verdect,
-                        score,
-                        createdAt,
-                      }: {
-                        verdect: string;
-                        score: number;
-                        createdAt: string;
-                      }, index: any) => {
-                        return <ListItem key={"This need to be changed"+index}>
-                        <ListItemText>{verdect}</ListItemText>
-                        <ListItemText>{score}</ListItemText>
-                        <ListItemText>{createdAt}</ListItemText>
-                      </ListItem>;
-                        
-                    }) } */}
-
                   {Submissions}
                 </div>
               </div>
             </Card>
-            {/* </Slide> */}
           </Pane>
           <SplitPane
             split="horizontal"
@@ -423,7 +377,6 @@ const Code = () => {
             onChange={setHsizes}
             sashRender={undefined}
           >
-            {/* <Slide in direction="down" timeout={1000}> */}
             <div
               style={{
                 height: "100%",
@@ -437,21 +390,15 @@ const Code = () => {
                 language={language}
                 setLanguage={setLanguage}
                 problemId={problemId}
-                // getStater={getStater}
-                // initValue={
-                //   getStater(language)}
                 clipboard={clipboard}
                 onValueChange={onValueChange}
               />
             </div>
-            {/* </Slide> */}
-            {/* <Slide  in direction="up" timeout={1000}> */}
             <Console
               id={problemId}
               language={language}
               setConfettiActive={setConfettiActive}
             />
-            {/* </Slide> */}
           </SplitPane>
         </SplitPane>
       </div>

@@ -22,56 +22,56 @@ let initLanguages = [
   ["typeScript", "TypeScript (3.7.4)"],
 ];
 
-const initStaterCode: { [key: string]: string } = {
-  c: `#include <stdio.h>
-#include <stdint.h>
+// const initStaterCode: { [key: string]: string } = {
+//   c: `#include <stdio.h>
+// #include <stdint.h>
 
-int main()
-{
-    uint64_t dx = 0x77E435B08;
-    while (dx) {
-        putchar(0x726F6C6564574820 >> (((dx >>= 3) & 7) << 3) & 0xFF);
-    }
-}`,
-  java: `import java.io.*;
-import java.util.*;
+// int main()
+// {
+//     uint64_t dx = 0x77E435B08;
+//     while (dx) {
+//         putchar(0x726F6C6564574820 >> (((dx >>= 3) & 7) << 3) & 0xFF);
+//     }
+// }`,
+//   java: `import java.io.*;
+// import java.util.*;
 
-public class Main {
+// public class Main {
 
-    public static void main(String[] args) {
-        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Main. */
-    }
-}`,
-  "c#": `using System;
-using System.Collections.Generic;
-using System.IO;
-class Solution {
-    static void Main(String[] args) {
-        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution */
-    }
-}`,
-  python: `# Enter your code here. Read input from STDIN. Print output to STDOUT`,
-  go: `package main
-import "fmt"
+//     public static void main(String[] args) {
+//         /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Main. */
+//     }
+// }`,
+//   "c#": `using System;
+// using System.Collections.Generic;
+// using System.IO;
+// class Solution {
+//     static void Main(String[] args) {
+//         /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution */
+//     }
+// }`,
+//   python: `# Enter your code here. Read input from STDIN. Print output to STDOUT`,
+//   go: `package main
+// import "fmt"
 
-func main() {
-	/* Enter your code here. Read input from STDIN. Print output to STDOUT */ 
-}`,
-  javascript: `function processData(input) {
-	/* Enter your code here. Read input from STDIN. Print output to STDOUT */ 
-} 
+// func main() {
+// 	/* Enter your code here. Read input from STDIN. Print output to STDOUT */ 
+// }`,
+//   javascript: `function processData(input) {
+// 	/* Enter your code here. Read input from STDIN. Print output to STDOUT */ 
+// } 
 
-process.stdin.resume();
-process.stdin.setEncoding("ascii");
-_input = "";
-process.stdin.on("data", function (input) {
-    _input += input;
-});
+// process.stdin.resume();
+// process.stdin.setEncoding("ascii");
+// _input = "";
+// process.stdin.on("data", function (input) {
+//     _input += input;
+// });
 
-process.stdin.on("end", function () {
-   processData(_input);
-});`,
-};
+// process.stdin.on("end", function () {
+//    processData(_input);
+// });`,
+// };
 
 export const AdminEditor = ({
   language,
@@ -80,26 +80,28 @@ export const AdminEditor = ({
   language: MutableRefObject<string>;
   initCode: MutableRefObject<string>;
 }) => {
+  const cmplang = useRef(language.current);
+  const clipbord = useRef("");
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
-  const [languages, setLanguages] = useState(initLanguages);
+  const [languages, _setLanguages] = useState(initLanguages);
   const [theme, setTheme] = useState(
     localStorage.getItem("code-theme") || "vs-dark"
   );
 
   useEffect(() => {
-    console.log("Trying Editer load", initStaterCode, setLanguages([]));
+    // console.log("Trying Editer load", initStaterCode, setLanguages([]));
     if (monacoEl.current) {
         setEditor((editor) => {
           if (editor) return editor;
           
-          return monaco.editor.create(monacoEl.current!, {
-            value: initCode.current,
-
-            language: language.current,
+          const ed = monaco.editor.create(monacoEl.current!, {
+            value: "getStater(cmplang.current, false, true)",
+  
+            language: cmplang.current,
             automaticLayout: true,
-            dropIntoEditor:{enabled: false,},
+            dropIntoEditor: { enabled: false },
             theme: theme,
             fontFamily: " Consolas, 'Courier New', monospace",
             // fontWeight: "medium",
@@ -108,6 +110,72 @@ export const AdminEditor = ({
             lineHeight: 22,
             letterSpacing: 0,
           });
+          const triggerPaste = (text: string) => {
+            if (ed) {
+              const position = ed.getPosition()!;
+              ed?.executeEdits("", [
+                {
+                  range: new monaco.Range(
+                    position.lineNumber,
+                    position.column,
+                    position.lineNumber,
+                    position.column
+                  ),
+                  text: text,
+                  forceMoveMarkers: true,
+                },
+              ]);
+              const tmp = text.split(/\r\n|\r|\n/); 
+              const newPosition = {
+                lineNumber: position.lineNumber + tmp.length,
+                column: position.column + text.length,
+              };
+              ed.setPosition(newPosition);
+      
+              ed?.focus();
+            }
+          };
+      
+          // prevent Ctrl + v and c
+          ed?.onKeyDown((event) => {
+            const { keyCode, ctrlKey, metaKey } = event;
+            if ((keyCode === 33 || keyCode === 54) && (metaKey || ctrlKey)) {
+              if (ed) {
+                const model = ed.getModel()!;
+                const selection = ed.getSelection();
+                if (selection) {
+                  const selectedText = model.getValueInRange(selection);
+                  clipbord.current = selectedText;
+                //   alert(selectedText)
+                }
+              }
+              return;
+            }
+      
+            if (keyCode === monaco.KeyCode.Backspace) {
+              alert("Backspace")
+              return;
+            }
+            if (keyCode === 52 && (metaKey || ctrlKey)) {
+              triggerPaste(clipbord.current);
+              event.preventDefault();
+              return;
+            }
+          });
+          
+          ed.onDidChangeModelContent(() => {
+            console.log(ed.getValue(), "Secound", cmplang.current);
+      
+            // onValueChange(ed.getValue(), cmplang.current);
+          });
+      
+          // prevent right click and past
+          ed.onDidPaste(() => {
+            // alert("No cheating");
+            ed.trigger("", "undo", undefined);
+            triggerPaste(clipbord.current);
+          });
+        return ed;
         });
       
     }
@@ -136,7 +204,7 @@ export const AdminEditor = ({
   
         initCode.current = editor.getValue();
       });
-  })
+  }, [editor])
 
   
 
@@ -158,6 +226,7 @@ export const AdminEditor = ({
           alignItems: "center",
         }}
       >
+        {JSON.stringify(languages, null, 2)}
         <div>
           <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
             <InputLabel id="language-selection-lable">Language</InputLabel>

@@ -1,11 +1,4 @@
-import {
-  Box,
-  CircularProgress,
-  createTheme,
-  CssBaseline,
-  Switch,
-  ThemeProvider
-} from "@mui/material";
+import { createTheme, CssBaseline, Switch, ThemeProvider } from "@mui/material";
 import React, { Suspense, useState } from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 
@@ -31,6 +24,7 @@ import Axios from "axios";
 import AdminHome from "./components/AdminViews/AdminHome";
 import ViewSubmissions from "./components/AdminViews/ViewSubmissions";
 import AdminRoute from "./components/Auth/AdminRouts";
+import LoadingScreen from "./components/common/LoadingScreen";
 import AdminCodeRunner from "./views/AdminCodeRunner";
 const router = createBrowserRouter([
   {
@@ -41,7 +35,6 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
     children: [
-      
       {
         path: "/lab",
         element: <AdminCodeRunner />,
@@ -103,7 +96,7 @@ const router = createBrowserRouter([
           },
           {
             element: <AdminRoute />,
-            children:[
+            children: [
               {
                 path: "/admin/home",
                 element: <AdminHome />,
@@ -129,8 +122,7 @@ const router = createBrowserRouter([
                 element: <AdvanceEditProblem />,
               },
             ],
-          }
-          
+          },
         ],
       },
     ],
@@ -139,7 +131,7 @@ const router = createBrowserRouter([
 const lightTheme = createTheme({
   palette: {
     mode: "light",
-    
+
     secondary: {
       main: "#f3f3f3", // Grey color
     },
@@ -151,22 +143,12 @@ const lightTheme = createTheme({
     MuiButton: {
       styleOverrides: {
         containedPrimary: {
-          color: '#fff', // Text color for primary buttons
-          backgroundColor: '#4a90e2', // Background color for primary buttons
-          '&:hover': {
-            
-            backgroundColor: '#7a70f2', // Background color on hover for primary buttons
+          color: "#fff", // Text color for primary buttons
+          backgroundColor: "#4a90e2", // Background color for primary buttons
+          "&:hover": {
+            backgroundColor: "#7a70f2", // Background color on hover for primary buttons
           },
         },
-        // outlinedPrimary: {
-        //   color: '#222',
-        //   border: '1px solid #222',
-        //   '&:hover': {
-        //     backgroundColor: '#eee', // Background color on hover for primary buttons
-        //     color: '#111',
-        //     border: '1px solid #111',
-        //   },
-        // }
       },
     },
     MuiAppBar: {
@@ -193,7 +175,7 @@ const lightTheme = createTheme({
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    
+
     secondary: {
       main: "#424242", // Grey color
     },
@@ -230,95 +212,84 @@ const darkTheme = createTheme({
   },
 });
 
-
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
   height: 34,
   padding: 7,
-  '& .MuiSwitch-switchBase': {
+  "& .MuiSwitch-switchBase": {
     margin: 1,
     padding: 0,
-    transform: 'translateX(6px)',
-    '&.Mui-checked': {
-      color: '#fff',
-      transform: 'translateX(22px)',
-      '& .MuiSwitch-thumb:before': {
+    transform: "translateX(6px)",
+    "&.Mui-checked": {
+      color: "#fff",
+      transform: "translateX(22px)",
+      "& .MuiSwitch-thumb:before": {
         backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-          '#fff',
+          "#fff"
         )}" d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"/></svg>')`,
       },
-      '& + .MuiSwitch-track': {
+      "& + .MuiSwitch-track": {
         opacity: 1,
-        backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+        backgroundColor: theme.palette.mode === "dark" ? "#8796A5" : "#aab4be",
       },
     },
   },
-  '& .MuiSwitch-thumb': {
-    backgroundColor: theme.palette.mode === 'dark' ? '#003892' : '#001e3c',
+  "& .MuiSwitch-thumb": {
+    backgroundColor: theme.palette.mode === "dark" ? "#003892" : "#001e3c",
     width: 32,
     height: 32,
-    '&::before': {
+    "&::before": {
       content: "''",
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
+      position: "absolute",
+      width: "100%",
+      height: "100%",
       left: 0,
       top: 0,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center',
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
       backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-        '#fff',
+        "#fff"
       )}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`,
     },
   },
-  '& .MuiSwitch-track': {
+  "& .MuiSwitch-track": {
     opacity: 1,
-    backgroundColor: theme.palette.mode === 'dark' ? '#8796A5' : '#aab4be',
+    backgroundColor: theme.palette.mode === "dark" ? "#8796A5" : "#aab4be",
     borderRadius: 20 / 2,
   },
 }));
 
 function App() {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<"light" | "dark">("light");
   React.useEffect(() => {
     const token = localStorage.getItem("token");
     Axios.defaults.headers.common["Authorization"] = "Bearer " + token;
-    const savedMode = localStorage.getItem('themeMode') as any | null;
+    const savedMode = localStorage.getItem("themeMode") as any | null;
     setMode(savedMode);
-    // if (savedMode) {
-    // } else {
-    //   const systemPrefersDark = window.matchMedia(
-    //     '(prefers-color-scheme: dark)',
-    //   ).matches;
-    //   setMode(systemPrefersDark ? 'dark' : 'light');
-    // }
+    if (savedMode) {
+    } else {
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      setMode(systemPrefersDark ? "dark" : "light");
+    }
   }, []);
-  const toggleColorMode = (newMode: 'dark'|'light') => {
+  const toggleColorMode = (newMode: "dark" | "light") => {
     setMode(newMode);
-    localStorage.setItem('themeMode', newMode); 
+    localStorage.setItem("themeMode", newMode);
   };
   return (
-    <Suspense
-      fallback={
-        <Box sx={{ width: "100%", height: "100vh", position: "relative" }}>
-          <div
-            style={{
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              position: "absolute",
-            }}
-          >
-            <CircularProgress />
-          </div>
-        </Box>
-      }
-    >
-      <ThemeProvider theme={mode == 'dark' ? darkTheme : lightTheme}>
+    <Suspense fallback={<LoadingScreen />}>
+      <ThemeProvider theme={mode == "dark" ? darkTheme : lightTheme}>
         <CssBaseline />
-        <MaterialUISwitch sx={{ m: 1, position: 'fixed', bottom: '0', left: '10', zIndex: 10 }} defaultChecked={mode == 'dark'} onChange={(e: any) => toggleColorMode((e.target.checked) ?'dark':'light')} />
+        <MaterialUISwitch
+          sx={{ m: 1, position: "fixed", bottom: "0", left: "10", zIndex: 10 }}
+          checked={mode == "dark"}
+          onChange={(e: any) =>
+            toggleColorMode(e.target.checked ? "dark" : "light")
+          }
+        />
         <AlertProvider>
-        
           <RouterProvider router={router} />
         </AlertProvider>
       </ThemeProvider>

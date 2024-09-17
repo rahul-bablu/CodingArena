@@ -7,13 +7,13 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 import Axios from "axios";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useAuth } from "../Auth/AuthProvider";
 import styles from "./Editor.module.css";
-
 
 let initLanguages = [
   ["c", "C (GCC 9.2.0)"],
@@ -37,7 +37,8 @@ int main()
         putchar(0x726F6C6564574820 >> (((dx >>= 3) & 7) << 3) & 0xFF);
     }
 }`,
-  java: `import java.io.*;
+  java: `// from stater
+import java.io.*;
 import java.util.*;
 
 public class Main {
@@ -98,7 +99,9 @@ export const Editor = ({
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
   // const clipbord = useRef("");
-  const [loding, setLoding] = useState(true);
+  const {user} = useAuth()!;
+  const loding = useRef(true);
+  // const [loding, setLoding] = useState(true);
   const staterCode = useRef(initStaterCode);
   const [languages, setLanguages] = useState(initLanguages);
   const [theme, setTheme] = useState(
@@ -106,10 +109,9 @@ export const Editor = ({
   );
   const cmplang = useRef(language); // this just a copy used for immediate change and computation
   // const flag = useRef(false);
-  const getFromLocalStorage = (lang:string) => {
-    
+  const getFromLocalStorage = (lang: string) => {
     let storageData = JSON.parse(
-      localStorage.getItem("autoSavedCodes") || "{}"
+      localStorage.getItem(user+"_autoSavedCodes") || "{}"
     );
 
     // Load the code if it exists
@@ -121,68 +123,83 @@ export const Editor = ({
       return storageData[problemId][lang];
     }
     return null;
-    
-  }
-  
-  const getStater = (lang: string, force: boolean = false, set: boolean = false) => {
+  };
+
+  const getStater = (
+    lang: string,
+    force: boolean = false,
+    set: boolean = false,
+  ) => {
     let storageData = getFromLocalStorage(lang);
-    console.log(storageData, force)
-    if(!force && storageData) {
+    console.log(storageData, force);
+    if (!force && storageData) {
       return storageData;
     } else {
-      if(set)
-      onValueChange(staterCode.current[lang], lang)
+      if (set) onValueChange(staterCode.current[lang], lang);
+    
       return staterCode.current[lang] || "";
     }
   };
 
   useEffect(() => {
+    if (editor){
     Axios.get(`/api/problem/statercode/${problemId}`, {
       withCredentials: true,
     })
       .then(({ data }) => {
         if (data) {
           staterCode.current = JSON.parse(data.scode);
-          setLanguages(JSON.parse(data.languages));
-          // editor?.setValue(getStater(language));
-          
+          const tmpl = JSON.parse(data.languages)
+          setLanguages(tmpl);
+          if (
+            tmpl.some(
+              (num:any) => num[0] === cmplang.current
+            )
+          ) {
+            if (!getFromLocalStorage(cmplang.current)) {
+              changeLanguage(cmplang.current);
+              // editor.setValue(getStater(cmplang.current));
+            }
+          } else {
+            changeLanguage(tmpl[0][0]);
+          }
+          // egetStater(cmplang.current, false, true)
         }
         console.log(data, JSON.parse(data.scode));
       })
       .catch((_e) => {
-        console.log(_e)
-        // alert("Couldn't stater codes" + "error");
-        
-      }).finally(()=>{setLoding(false)});
-  }, [staterCode]);
-
-  useEffect(()=>{
-    if(loding || !editor) return;
-    if (
-      languages.reduce(
-        (total, num) => (num[0] == cmplang.current ? true : false || total),
-        false
-      )
-    ) {
-      if(!getFromLocalStorage(cmplang.current)){
-        changeLanguage(cmplang.current)
-      }
-      } else {
-      changeLanguage(languages[0][0]);
+        console.log(_e);
+      })
+      .finally(() => {
+        editor.setValue(getStater(cmplang.current, false, true));
+        // setLoding(false);
+        loding.current = false;
+        // alert("Got stater");
+      });
     }
-  },[languages]);
+  }, [editor]);
 
   useEffect(() => {
-    if ( monacoEl.current) {
-        setEditor((editor) => {
-          if (editor) return editor;
-          
-          return monaco.editor.create(monacoEl.current!, {
-            value: getStater(language, false, true),
-
-            language: language,
+    if (monacoEl.current) {
+      setEditor((editor) => {
+        if (editor) return editor;
+        // if (
+        //   languages.some(
+        //     (num) => num[0] === cmplang.current
+        //   )
+        // ) {
+        //   if (!getFromLocalStorage(cmplang.current)) {
+        //     changeLanguage(cmplang.current);
+        //   }
+        // } else {
+        //   changeLanguage(languages[0][0]);
+        // }
+        const ed = monaco.editor.create(monacoEl.current!, {
+            value: getStater(cmplang.current),
+  
+            language: cmplang.current,
             automaticLayout: true,
-            dropIntoEditor:{enabled: false,},
+            dropIntoEditor: { enabled: false },
             theme: theme,
             fontFamily: " Consolas, 'Courier New', monospace",
             // fontWeight: "medium",
@@ -191,92 +208,89 @@ export const Editor = ({
             lineHeight: 22,
             letterSpacing: 0,
           });
-        });
+          const triggerPaste = (text: string) => {
+            if (ed) {
+              const position = ed.getPosition()!;
+              ed?.executeEdits("", [
+                {
+                  range: new monaco.Range(
+                    position.lineNumber,
+                    position.column,
+                    position.lineNumber,
+                    position.column
+                  ),
+                  text: text,
+                  forceMoveMarkers: true,
+                },
+              ]);
+              const tmp = text.split(/\r\n|\r|\n/); 
+              const newPosition = {
+                lineNumber: position.lineNumber + tmp.length,
+                column: position.column + text.length,
+              };
+              ed.setPosition(newPosition);
       
+              ed?.focus();
+            }
+          };
+      
+          // prevent Ctrl + v and c
+          ed?.onKeyDown((event) => {
+            const { keyCode, ctrlKey, metaKey } = event;
+            if ((keyCode === monaco.KeyCode.KeyC || keyCode === monaco.KeyCode.KeyX) && (metaKey || ctrlKey)) {
+              if (ed) {
+                const model = ed.getModel()!;
+                const selection = ed.getSelection();
+                if (selection) {
+                  const selectedText = model.getValueInRange(selection);
+                  clipbord.current = selectedText;
+                //   alert(selectedText)
+                }
+              }
+              return;
+            }
+      
+            if (keyCode === monaco.KeyCode.Backspace) {
+              return;
+            }
+            if (keyCode === monaco.KeyCode.KeyV && (metaKey || ctrlKey)) {
+              triggerPaste(clipbord.current);
+              event.preventDefault();
+              return;
+            }
+          });
+          
+          ed.onDidChangeModelContent(() => {
+            console.log(ed.getValue(), "Secound", cmplang.current);
+      
+            onValueChange(ed.getValue(), cmplang.current);
+          });
+      
+          // prevent right click and past
+          ed.onDidPaste(() => {
+            // alert("No cheating");
+            ed.trigger("", "undo", undefined);
+            triggerPaste(clipbord.current);
+          });
+        return ed;
+      });
     }
-
-    return () => {editor?.dispose();};
-  }, [monacoEl]);
-
-  useEffect(() => {
-    // if(loding || !editor) return;
-    console.log(editor)
-    const triggerPaste = (text: string) => {
-      console.log(clipbord.current)
-      if (editor) {
-        const position = editor.getPosition()!;
-        editor?.executeEdits("", [
-          {
-            range: new monaco.Range(
-              position.lineNumber,
-              position.column,
-              position.lineNumber,
-              position.column
-            ),
-            text: text,
-            forceMoveMarkers: true,
-          },
-        ]);
-        const newPosition = {
-          lineNumber: position.lineNumber,
-          column: position.column + text.length,
-        };
-        editor.setPosition(newPosition);
-
-        editor?.focus();
-      }
+    return () => {
+      editor?.dispose();
     };
 
-    // prevent Ctrl + v and c
-    editor?.onKeyDown((event) => {
-      const { keyCode, ctrlKey, metaKey } = event;
-      if ((keyCode === 33 || keyCode === 54) && (metaKey || ctrlKey)) {
-        if (editor) {
-          const model = editor.getModel()!;
-          const selection = editor.getSelection();
-          if (selection) {
-            const selectedText = model.getValueInRange(selection);
-            clipbord.current = selectedText;
-          }
-        }
-        // event.preventDefault();
-        return;
-      }
+  }, [monacoEl, loding]);
 
-      if (keyCode === 52 && (metaKey || ctrlKey)) {
-        triggerPaste(clipbord.current);
-        event.preventDefault();
-      }
-    });
-    console.log("Editor contant change set")
-    editor?.onDidChangeModelContent(() => {
-      console.log(editor.getValue(), "Secound", cmplang.current);
-
-      onValueChange(editor.getValue(), cmplang.current);
-    });
-
-    // prevent right click and past
-    editor?.onDidPaste(() => {
-      // alert("No cheating");
-      editor.trigger("", "undo", undefined);
-      triggerPaste(clipbord.current);
-    });
-  }, [editor]);
 
   function changeLanguage(lang: string) {
     cmplang.current = lang;
-    // language = tm
-    // alert("got" + lang);
-    // console.log(editor?.getValue(), "coucbeiub");
     setLanguage(cmplang.current);
     localStorage.setItem("current-lang", cmplang.current);
-    monaco.editor.setModelLanguage(editor?.getModel()!, cmplang.current);
-    editor?.setValue(getStater(cmplang.current));
-
-    // editor.
+    if (editor) {
+      monaco.editor.setModelLanguage(editor?.getModel()!, cmplang.current);
+      editor?.setValue(getStater(cmplang.current));
+    }
   }
-
-  
 
   function changeTheme(event: SelectChangeEvent) {
     const tm = event.target.value;
@@ -286,10 +300,15 @@ export const Editor = ({
   }
 
   return (
-    // loding?<></>:
-    <Card style={{ height: "100%", position:'relative', paddingTop: 5,
-      paddingBottom: 5,
-       }}>
+    <Card
+      style={{
+        height: "100%",
+        position: "relative",
+        paddingTop: 5,
+        paddingBottom: 5,
+      }}
+    >
+      
       <div
         style={{
           display: "flex",
@@ -332,9 +351,16 @@ export const Editor = ({
             </Select>
           </FormControl>
         </div>
-        <Tooltip title="Reset to default code">
+
+        {!editor ? <></> : <Tooltip title="Reset to default code">
           <IconButton
-            onClick={() => {editor?.setValue("hj"+getStater(language, true)); console.log(staterCode, getStater(language, true))}}
+            onClick={() => {
+              if(editor){
+                // alert("GCET")
+              editor.setValue(getStater(cmplang.current, true));
+            }
+              console.log(staterCode, getStater(cmplang.current, true));
+            }}
             sx={{
               color: "black",
               "&:hover": {
@@ -346,28 +372,27 @@ export const Editor = ({
           >
             <RestartAltIcon fontSize="large" />
           </IconButton>
-        </Tooltip>
+        </Tooltip>}
       </div>
-
-            <div style={{position:'relative', width:'100%', height:"92%", }}>
-            
-      {
-      // loding ?<Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-      //     <div
-      //       style={{
-      //         top:'30%',
-      //         left: "50%",
-      //         zIndex: 200,
-      //         transform: "translate(-50%, -50%)",
-      //         position: "absolute",
-      //       }}
-      //     >
-      //       <div>Making your editor ready please standby...</div>
-      //       <div style={{margin:'auto', width:'max-content'}}><CircularProgress /></div>
-      //     </div>
-      //   </Box>:
-        <div className={styles.Editor} ref={monacoEl}></div>}
-        </div>
+      <div style={{ position: "relative", width: "100%", height: "92%" }}>
+        {
+          // loding ?<Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+          //     <div
+          //       style={{
+          //         top:'30%',
+          //         left: "50%",
+          //         zIndex: 200,
+          //         transform: "translate(-50%, -50%)",
+          //         position: "absolute",
+          //       }}
+          //     >
+          //       <div>Making your editor ready please standby...</div>
+          //       <div style={{margin:'auto', width:'max-content'}}><CircularProgress /></div>
+          //     </div>
+          //   </Box>:
+          <div className={styles.Editor} ref={monacoEl}></div>
+        }
+      </div>
     </Card>
   );
 };

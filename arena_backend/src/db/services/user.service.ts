@@ -26,10 +26,10 @@ async function getById(id:number) {
 
 export async function create(params:{username?:string, password?:string, phash?:string, email?:string}) {
     // validate
-    if (await User.findOne({ where: { username: params.username } })) {
+    if (await User.findOne({ where: { username: params.username?.trim() } })) {
         throw 'Username "' + params.username + '" is already taken';
     }
-    if (await User.findOne({ where: { email: params.email } })) {
+    if (await User.findOne({ where: { email: params.email?.trim() } })) {
         throw 'Email "' + params.email + '" has already registred';
     }
 

@@ -1,11 +1,12 @@
 import { Button, Card, LinearProgress, Switch, TextField } from "@mui/material";
 import Axios from "axios";
 import { memo, useContext, useState } from "react";
+import { useAuth } from "../Auth/AuthProvider";
 import { AlertContext } from "../common/AlertProvider";
 import BaseBox from "../common/BaseBox";
 
-const getCode = (problemId:number, lang: string) => {
-  let storageData = JSON.parse(localStorage.getItem('autoSavedCodes')|| '{}');
+const getCode = (problemId:number, lang: string, user: string | null) => {
+  let storageData = JSON.parse(localStorage.getItem(user + '_autoSavedCodes')|| '{}');
 
     // Load the code if it exists
     if (storageData &&
@@ -24,6 +25,7 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
   const alert = useContext(AlertContext);
   const [tcInput, setTCInput] = useState("");
   const [custominp, setCustomInp] = useState(false);
+  const {user} = useAuth()!;
 
   return (
     <BaseBox
@@ -68,7 +70,7 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
                 setLoading(true);
                 try {
                 const { data } = await Axios.post(`/api/problem/run/${id}`, {
-                  code: getCode(id, language),
+                  code: getCode(id, language, user),
                   lid: language,
                   input: tcInput,
                   custominp
@@ -93,7 +95,7 @@ const Console = memo(({ id, language, setConfettiActive }: { id: number; languag
                 try{
                 const { data } = await Axios.post(
                   `/api/problem/submission/${id}`,
-                  { code: getCode(id, language), lid:language },
+                  { code: getCode(id, language, user), lid:language },
                   
                 );
 

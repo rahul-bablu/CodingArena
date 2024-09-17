@@ -26,6 +26,7 @@ class Contest extends Model {
   declare startTime: Date;
   declare endTime: Date;
   declare title: string;
+  // declare createrID: number;
 
   declare getUsers: HasManyGetAssociationsMixin<User>;
   declare getProblems: HasManyGetAssociationsMixin<Problem>;
@@ -51,6 +52,9 @@ Contest.init(
       allowNull: false,
       unique: true,
     },
+    // createrID: {
+    //   type: DataTypes.INTEGER.UNSIGNED,
+    // },
     state: {
       type: DataTypes.ENUM(...Object.values(ContestState)),
       allowNull: false,

@@ -1,11 +1,26 @@
 import {
+  Autocomplete,
+  Button,
   darken,
-  styled
+  Dialog,
+  IconButton,
+  styled,
+  TextField,
+  Toolbar
 } from "@mui/material";
 
+import Close from "@mui/icons-material/Close";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
+import Axios from "axios";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { useContext, useEffect, useRef, useState } from "react";
+import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
+import { AlertContext } from "../components/common/AlertProvider";
+import BaseBox from "../components/common/BaseBox";
+import Navbar from "../components/common/Navbar";
+import { AdminEditor } from "../components/Editor/AdminEditor";
 import "../components/Editor/useWorker";
 import "./Code.module.css";
 
@@ -36,222 +51,219 @@ export const StyledTab = styled(Tab)(({ theme }) => ({
   },
 }));
 const AdminCodeRunner = () => {
-  return <></>
-  // const alert = useContext(AlertContext);
-  // // TODO: Handle NaN
-  // const [sizes, setSizes] = useState(["65%", "35%"] as (string | number)[]);
-  // const [hsizes, setHsizes] = useState(["80%", "20%"] as (string | number)[]);
+  // return <></>
+  const alert = useContext(AlertContext);
+  // TODO: Handle NaN
+  const [sizes, setSizes] = useState(["65%", "35%"] as (string | number)[]);
+  const [contest, setContest] = useState<any>(null);
+  const [problem, setProblem] = useState<any>(null);
+  const [testCase, setTestCase] = useState<any>(null);
 
-  // const [submissions, setSubmissions] = useState<any>([]);
-  // const [contest, setContest] = useState<any>(null);
-  // const [problem, setProblem] = useState<any>(null);
-  // const [testCase, setTestCase] = useState<any>(null);
+  const [contests, setContests] = useState<any>(null);
+  const [problems, setProblems] = useState<any>({});
+  const [testCases, setTestCases] = useState<any>({});
 
-  // const [contests, setContests] = useState<any>(null);
-  // const [problems, setProblems] = useState<any>({});
-  // const [testCases, setTestCases] = useState<any>({});
+  let code = useRef(""),
+    lang = useRef("c");
 
-  // let code = useRef(""),
-  //   lang = useRef("c");
+  useEffect(() => {
+    Axios.get("/api/contest")
+      .then(({ data }) => {
+        setContests(data);
+        setProblems(null);
+        setTestCases(null);
+      })
+      .catch((_e) => {
+        alert?.showAlert("Couldn't fetch contest data", "error");
+      });
+  }, []);
+  const [diffOpen, setDiffOpen] = useState(false);
+  const [result, setResult] = useState('');
 
-  // useEffect(() => {
-  //   Axios.get("/api/contest")
-  //     .then(({ data }) => {
-  //       setContests(data);
-  //       setProblems(null);
-  //       setTestCases(null);
-  //     })
-  //     .catch((e) => {
-  //       alert?.showAlert("Couldn't fetch contest data", "error");
-  //     });
-  // }, []);
-  // const [diffOpen, setDiffOpen] = useState(false);
-  // const [result, setResult] = useState('');
-
-  // function handleDiffClose() {
-  //   setDiffOpen(false);
-  // }
-  // const [diffEditor, setDiffEditor] =
-  //   useState<any>(null);
-  //   const monacoDifEl = useRef(null);
-  // useEffect(() => {
-  //   if(!diffOpen) return;
-  //   console.log("Trying Editer load");
-  //   if (true) {
-  //       setDiffEditor((diffEditor:any) => {
-  //         // if (diffEditor) return diffEditor;
-  //         let tmpEditor = monaco.editor.createDiffEditor(
-  //           monacoDifEl.current!
-  //           ,{
-  //             readOnly: true
-  //           }
-  //         );
-  //         let originalModel = monaco.editor.createModel(
-  //           "This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text",
-  //           "text/plain"
-  //         );
-  //         let modifiedModel = monaco.editor.createModel(
-  //           "just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.",
-  //           "text/plain"
-  //         );
-  //         tmpEditor.setModel({
-  //           original: originalModel,
-  //           modified: modifiedModel,
-  //         });
-  //         return tmpEditor
-  //       });
+  function handleDiffClose() {
+    setDiffOpen(false);
+  }
+  const [diffEditor, setDiffEditor] =
+    useState<any>(null);
+    const monacoDifEl = useRef(null);
+  useEffect(() => {
+    if(!diffOpen) return;
+    console.log("Trying Editer load");
+    if (true) {
+        setDiffEditor((_diffEditor:any) => {
+          // if (diffEditor) return diffEditor;
+          let tmpEditor = monaco.editor.createDiffEditor(
+            monacoDifEl.current!
+            ,{
+              readOnly: true
+            }
+          );
+          let originalModel = monaco.editor.createModel(
+            "This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text",
+            "text/plain"
+          );
+          let modifiedModel = monaco.editor.createModel(
+            "just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.",
+            "text/plain"
+          );
+          tmpEditor.setModel({
+            original: originalModel,
+            modified: modifiedModel,
+          });
+          return tmpEditor
+        });
       
-  //   }
+    }
 
 
-  //   return () => {diffEditor?.dispose();};
-  // }, [diffOpen]);
+    return () => {diffEditor?.dispose();};
+  }, [diffOpen]);
 
-  // function getAllProblemOf(contestId: number) {
-  //   Axios.get(`/api/contest/problems?contestId=${contestId}`)
-  //     .then(({ data }) => {
-  //       console.log(data.problems);
-  //       setProblems(data.problems);
-  //       setTestCase(null);
-  //     })
-  //     .catch((e) => {
-  //       alert?.showAlert("Couldn't fetch problems data", "error");
-  //     });
-  // }
+  function getAllProblemOf(contestId: number) {
+    Axios.get(`/api/contest/problems?contestId=${contestId}`)
+      .then(({ data }) => {
+        console.log(data.problems);
+        setProblems(data.problems);
+        setTestCase(null);
+      })
+      .catch((_e) => {
+        alert?.showAlert("Couldn't fetch problems data", "error");
+      });
+  }
 
-  // function getAllIOsOf(problemId: number) {
-  //   Axios.get(`/api/problem/io/${problemId}`)
-  //     .then(({ data }) => {
-  //       setTestCases(data);
-  //     })
-  //     .catch((e) => {
-  //       alert?.showAlert("Couldn't fetch testcase data", "error");
-  //     });
-  // }
+  function getAllIOsOf(problemId: number) {
+    Axios.get(`/api/problem/io/${problemId}`)
+      .then(({ data }) => {
+        setTestCases(data);
+      })
+      .catch((_e) => {
+        alert?.showAlert("Couldn't fetch testcase data", "error");
+      });
+  }
 
-  // return (
-  //   <BaseBox
-  //     style={{
-  //       height: "100vh",
-  //       minWidth: 500,
-  //       overflow: "auto",
-  //     }}
-  //   >
-  //     <Navbar />
+  return (
+    <BaseBox
+      style={{
+        height: "100vh",
+        minWidth: 500,
+        overflow: "auto",
+      }}
+    >
+      <Navbar />
 
-  //     <div style={{ height: "calc(100vh - 50px)" }}>
-  //       {/* <div style={{height:100}}></div> */}
-  //       <SplitPane
-  //         split="vertical"
-  //         sizes={sizes}
-  //         onChange={setSizes}
-  //         sashRender={undefined}
-  //         // resizerSize={7}
-  //       >
-  //         <Pane minSize={200} maxSize="80%" style={{ height: "100%" }}>
-  //           <AdminEditor language={lang} initCode={code} />
-  //         </Pane>
-  //         <Pane>
-  //           <Autocomplete
-  //             value={contest}
-  //             onChange={(event: any, newValue: any) => {
-  //               setContest(newValue);
-  //               getAllProblemOf(newValue.id);
-  //             }}
-  //             getOptionLabel={(option) => {
-  //               return option.id + " " + option.title;
-  //             }}
-  //             id="contest-autocomplete-component"
-  //             options={contests}
-  //             sx={{ width: 300, margin: "10px" }}
-  //             renderInput={(params) => (
-  //               <TextField {...params} label="Contest" />
-  //             )}
-  //           />
-  //           {problems && (
-  //             <Autocomplete
-  //               value={problem}
-  //               onChange={(event: any, newValue: any) => {
-  //                 setProblem(newValue);
-  //                 getAllIOsOf(newValue.id);
-  //               }}
-  //               getOptionLabel={(option) => {
-  //                 return option.id + " " + option.title;
-  //               }}
-  //               id="problem-autocomplete-component"
-  //               options={problems}
-  //               sx={{ width: 300, margin: "10px" }}
-  //               renderInput={(params) => (
-  //                 <TextField {...params} label="Problem" />
-  //               )}
-  //             />
-  //           )}
-  //           {testCases && (
-  //             <Autocomplete
-  //               value={testCase}
-  //               onChange={(event: any, newValue: any) => {
-  //                 setTestCase(newValue);
-  //               }}
-  //               getOptionLabel={(option) => {
-  //                 return option.id + " ";
-  //               }}
-  //               id="testcase-autocomplete-component"
-  //               options={testCases}
-  //               sx={{ width: 300, margin: "10px" }}
-  //               renderInput={(params) => (
-  //                 <TextField {...params} label="Testcase" />
-  //               )}
-  //             />
-  //           )}
-  //           <Button
-  //             variant="contained"
-  //             onClick={async () => {
-  //               if (!testCase) {
-  //                 alert?.showAlert(
-  //                   "Please select testcase before submitting",
-  //                   "warning"
-  //                 );
-  //                 return;
-  //               }
-  //               const { data } = await Axios.post(`/api/problem/run/testcase`, {
-  //                 code: code.current,
-  //                 lid: lang.current,
-  //                 tcid: testCase.id,
-  //               });
-  //               setResult(data);
-  //               console.log(data);
-  //             }}
-  //           >
-  //             Run
-  //           </Button>
-  //           <Button onClick={() => {setDiffOpen(true); }}>
-  //             Open Diff Editor
-  //           </Button>
-  //           <Dialog
-  //             fullScreen
-  //             open={diffOpen}
-  //             onClose={handleDiffClose}
-  //           >
-  //             <Toolbar>
-  //           <IconButton
-  //             edge="start"
-  //             color="inherit"
-  //             onClick={handleDiffClose}
-  //             aria-label="close"
-  //           >
-  //             <CloseIcon />
-  //           </IconButton>
+      <div style={{ height: "calc(100vh - 50px)" }}>
+        {/* <div style={{height:100}}></div> */}
+        <SplitPane
+          split="vertical"
+          sizes={sizes}
+          onChange={setSizes}
+          sashRender={undefined}
+          // resizerSize={7}
+        >
+          <Pane minSize={200} maxSize="80%" style={{ height: "100%" }}>
+            <AdminEditor language={lang} initCode={code} />
+          </Pane>
+          <Pane>
+            <Autocomplete
+              value={contest}
+              onChange={(_event: any, newValue: any) => {
+                setContest(newValue);
+                getAllProblemOf(newValue.id);
+              }}
+              getOptionLabel={(option) => {
+                return option.id + " " + option.title;
+              }}
+              id="contest-autocomplete-component"
+              options={contests}
+              sx={{ width: 300, margin: "10px" }}
+              renderInput={(params) => (
+                <TextField {...params} label="Contest" />
+              )}
+            />
+            {problems && (
+              <Autocomplete
+                value={problem}
+                onChange={(_event: any, newValue: any) => {
+                  setProblem(newValue);
+                  getAllIOsOf(newValue.id);
+                }}
+                getOptionLabel={(option) => {
+                  return option.id + " " + option.title;
+                }}
+                id="problem-autocomplete-component"
+                options={problems}
+                sx={{ width: 300, margin: "10px" }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Problem" />
+                )}
+              />
+            )}
+            {testCases && (
+              <Autocomplete
+                value={testCase}
+                onChange={(_event: any, newValue: any) => {
+                  setTestCase(newValue);
+                }}
+                getOptionLabel={(option) => {
+                  return option.id + " ";
+                }}
+                id="testcase-autocomplete-component"
+                options={testCases}
+                sx={{ width: 300, margin: "10px" }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Testcase" />
+                )}
+              />
+            )}
+            <Button
+              variant="contained"
+              onClick={async () => {
+                if (!testCase) {
+                  alert?.showAlert(
+                    "Please select testcase before submitting",
+                    "warning"
+                  );
+                  return;
+                }
+                const { data } = await Axios.post(`/api/problem/run/testcase`, {
+                  code: code.current,
+                  lid: lang.current,
+                  tcid: testCase.id,
+                });
+                setResult(data);
+                console.log(data);
+              }}
+            >
+              Run
+            </Button>
+            <Button onClick={() => {setDiffOpen(true); }}>
+              Open Diff Editor
+            </Button>
+            <Dialog
+              fullScreen
+              open={diffOpen}
+              onClose={handleDiffClose}
+            >
+              <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleDiffClose}
+              aria-label="close"
+            >
+              <Close />
+            </IconButton>
             
-  //         </Toolbar>
-  //         <div  ref={monacoDifEl} style={{height: '100vh'}}></div>
-  //           </Dialog>
+          </Toolbar>
+          <div  ref={monacoDifEl} style={{height: '100vh'}}></div>
+            </Dialog>
 
-  //           <div>{JSON.stringify(result)}</div>
-  //         </Pane>
-  //       </SplitPane>
-  //     </div>
-  //   </BaseBox>
-  // );
+            <div>{JSON.stringify(result)}</div>
+          </Pane>
+        </SplitPane>
+      </div>
+    </BaseBox>
+  );
 };
 
 export default AdminCodeRunner;
