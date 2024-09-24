@@ -1,14 +1,18 @@
 .code-block {
-    background-color: #252525;
-    color: white; /* Optional: to ensure text is visible on black background */
-    padding: 10px; /* Optional: to add some padding */
-    border-radius: 5px; /* Optional: to add rounded corners */
-    overflow-x: auto; /* Optional: to handle long lines of code */
-  }
+  background-color: #252525;
+  color: white;
+  /* Optional: to ensure text is visible on black background */
+  padding: 10px;
+  /* Optional: to add some padding */
+  border-radius: 5px;
+  /* Optional: to add rounded corners */
+  overflow-x: auto;
+  /* Optional: to handle long lines of code */
+}
 
-  @media (prefers-color-scheme: dark) {
-    
-    /* .code-block {
+@media (prefers-color-scheme: dark) {
+
+  /* .code-block {
       background-color: #8d8888;
       color: rgb(221, 217, 217); 
       padding: 10px; 
@@ -18,4 +22,25 @@
       background-color: #252525;
       color:aqua
     } */
-  }
+}
+
+
+
+.questionBlock-dark::-webkit-scrollbar {
+  width: 15px;
+  /* max-height: 10px; */
+}
+
+.questionBlock-dark::-webkit-scrollbar-track {
+  /* border-radius: 8px; */
+  background-color: #4a4646;
+  /* border: 1px solid #cacaca; */
+  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, .3); */
+}
+
+.questionBlock-dark::-webkit-scrollbar-thumb {
+  /* border-radius: 5px; */
+  background-color: #7a7776;
+}
+
+

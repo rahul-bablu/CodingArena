@@ -42,54 +42,65 @@ export async function create(params:{username?:string, password?:string, phash?:
     // save user
     const user = await User.create(params);
 
-    if (user) {
-        let setToken = await VerifyToken.create({
-          userId: user.id,
-          token: crypto.randomBytes(16).toString("hex"),
-        });
+    // if (user) {
+    //     let setToken = await VerifyToken.create({
+    //       userId: user.id,
+    //       token: crypto.randomBytes(16).toString("hex"),
+    //     });
   
-        //if token is created, send the user a mail
-        if (setToken) {
-          //send email to the user
-          //with the function coming from the mailing.js file
-          //message containing the user id and the token to help verify their email
-          sendEmail({
-            to: `${params.email}`,
-            subject: "Account Verification Link",
-            message: `Hello, ${params.username}\n Please verify your email for Coding Arena by clicking this link:\n
-                  ${config.APP_URL}/users/verify-email/${user.id}/${setToken.token} `,
-          });
+    //     //if token is created, send the user a mail
+    //     if (setToken) {
+    //       //send email to the user
+    //       //with the function coming from the mailing.js file
+    //       //message containing the user id and the token to help verify their email
+    //       sendEmail({
+    //         to: `${params.email}`,
+    //         subject: "Account Verification Link",
+    //         message: `Hello, ${params.username}\n Please verify your email for Coding Arena by clicking this link:\n
+    //               ${config.APP_URL}/users/verify-email/${user.id}/${setToken.token} `,
+    //       });
   
-          //if token is not created, send a status of 400
-        } else {
-          throw "token not created";
-        }
+    //       //if token is not created, send a status of 400
+    //     } else {
+    //       throw "token not created";
+    //     }
   
-      } else {
-        return "Details are incorrect";
-      }
+    //   } else {
+    //     return "Details are incorrect";
+    //   }
 }
 
 
-export async function update(id:number, params:{username?:string, password?:string, phash?:string}) {
+export async function update({ id, username, role, email }: { id: number, username: string, role: string, email: string }) {
+    
     const user = await getUser(id);
-
+    if (!user) {
+        throw 'Not valid user';
+    }
+    if (username === '' || role === '' || email === '') {
+        throw 'Empty Fields!!';
+    }
     // validate
-    const usernameChanged = params.username && user.username !== params.username;
-    if (usernameChanged && await User.findOne({ where: { username: params.username } })) {
-        throw 'Username "' + params.username + '" is already taken';
+    username = username.trim();
+    email = email.trim();
+    const usernameChanged = username && user.username !== username;
+    const emailChanged = email && user.email !== email;
+    if (usernameChanged && await User.findOne({ where: { username: username } })) {
+        throw 'Username "' + username + '" is already taken';
+    }
+    if (emailChanged && await User.findOne({ where: { email: email } })) {
+        throw 'Email "' + email + '" is already taken';
     }
 
-    // hash password if it was entered
-    if (params.password) {
-        params.phash = await bcrypt.hash(params.password, 10);
-    }
+    // // hash password if it was entered
+    // if (params.password) {
+    //     params.phash = await bcrypt.hash(params.password, 10);
+    // }
+
 
     // copy params to user and save
-    Object.assign(user, params);
+    Object.assign(user, {username, role, email});
     await user.save();
-
-    return omitHash(user.get());
 }
 
 export async function _delete(id:number) {

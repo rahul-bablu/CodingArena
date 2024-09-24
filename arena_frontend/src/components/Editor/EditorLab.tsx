@@ -8,6 +8,7 @@ import {
   Select,
   SelectChangeEvent,
   Tooltip,
+  useTheme,
 } from "@mui/material";
 import Axios from "axios";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
@@ -99,7 +100,8 @@ export const Editor = ({
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
   // const clipbord = useRef("");
-  const {user} = useAuth()!;
+  const { user } = useAuth()!;
+  const globalTheme = useTheme();
   const loding = useRef(true);
   // const [loding, setLoding] = useState(true);
   const staterCode = useRef(initStaterCode);
@@ -302,10 +304,13 @@ export const Editor = ({
   return (
     <Card
       style={{
+        // margin: 5,
+        borderRadius: 8,
         height: "100%",
         position: "relative",
         paddingTop: 5,
         paddingBottom: 5,
+        backgroundColor: (globalTheme.palette.mode == "dark")? globalTheme.palette.background.default: "",
       }}
     >
       
@@ -362,7 +367,7 @@ export const Editor = ({
               console.log(staterCode, getStater(cmplang.current, true));
             }}
             sx={{
-              color: "black",
+              // color: "black",
               "&:hover": {
                 backgroundColor: "transparent",
                 cursor: "default",
