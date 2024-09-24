@@ -3,6 +3,8 @@ import { memo, useContext, useEffect, useState } from "react";
 import { AlertContext } from "../common/AlertProvider";
 import Markdown from "../common/Markdown";
 import style from './Question.module.css';
+import { useTheme } from "@mui/material";
+
 
 
 const Question = memo(({ id, hidden }: { id: number; hidden: boolean }) => {
@@ -10,6 +12,7 @@ const Question = memo(({ id, hidden }: { id: number; hidden: boolean }) => {
   const [title, setTitle] = useState();
   const [loading, setLoading] = useState(true);
   const alert = useContext(AlertContext);
+  const theme = useTheme();
   useEffect(() => {
     (async () => {
       try {
@@ -19,23 +22,27 @@ const Question = memo(({ id, hidden }: { id: number; hidden: boolean }) => {
       } catch (e) {
         console.log(e);
         alert?.showAlert("Couldn't load question...", 'error');
-        
+
       } finally {
-        
+
         setLoading(false);
       }
     })();
   }, []);
   return (
+
     <div
       hidden={hidden}
       style={{
-        padding: "10px",
+        padding: "20px",
         fontFamily: "Roboto, Helvetica Neue, sans-serif",
+        flexGrow: "1",
+        overflowY: "auto",
+       
       }}
-      className={style.questionBlock}
+      className={theme.palette.mode == "dark" ? style["questionBlock-dark"]: ""}
     >
-      { loading ? <>Loding...</> : <><h1>{title}</h1><Markdown children={md} /></>}
+      {loading ? <>Loding...</> : <><h1>{title}</h1><Markdown children={md} /></>}
     </div>
   );
 });

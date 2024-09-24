@@ -94,9 +94,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
         throw new Error(response.data);
-      } catch (err) {
+      } catch (err:any) {
         console.error(err);
-        alert?.showAlert("" + err, "error");
+        alert?.showAlert("" + err.response.data.message, "error");
       } finally {
         setLoading(false);
       }

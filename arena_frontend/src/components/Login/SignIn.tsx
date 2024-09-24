@@ -11,6 +11,7 @@ import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { AlertContext } from "../common/AlertProvider";
 import style from "./styles.module.css";
+
 function SignInForm() {
   const { loginAction } = useAuth()!;
   const alert = useContext(AlertContext);
@@ -77,7 +78,7 @@ function SignInForm() {
         /> */}
         <input
           className={style["input"]}
-          style={{background: theam.palette.secondary.main}}
+          style={{background: theam.palette.secondary.main, color: theam.palette.text.primary}}
           type="text"
           name="username"
           placeholder="Username"
@@ -86,7 +87,7 @@ function SignInForm() {
         />
         <input
           className={style["input"]}
-          style={{background: theam.palette.secondary.main}}
+          style={{background: theam.palette.secondary.main, color: theam.palette.text.primary}}
           type="password"
           name="password"
           placeholder="Password"

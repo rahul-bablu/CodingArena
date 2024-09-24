@@ -71,7 +71,7 @@ function SignUpForm() {
         <span>or use your email for registration</span> */}
         <input
         className={style["input"]}
-        style={{background: theam.palette.secondary.main}}
+        style={{background: theam.palette.secondary.main, color: theam.palette.text.primary}}
           type="text"
           name="name"
           value={state.name}
@@ -81,18 +81,17 @@ function SignUpForm() {
         />
         <input
         className={style["input"]}
-        style={{background: theam.palette.secondary.main}}
+        style={{background: theam.palette.secondary.main, color: theam.palette.text.primary}}
           type="email"
           name="email"
           value={state.email}
           onChange={handleChange}
           placeholder="Email"
           required
-
         />
         <input
         className={style["input"]}
-        style={{background: theam.palette.secondary.main}}
+        style={{background: theam.palette.secondary.main, color: theam.palette.text.primary}}
           type="password"
           name="password"
           value={state.password}
@@ -103,12 +102,12 @@ function SignUpForm() {
         />
         <input
         className={style["input"]}
-        style={{background: theam.palette.secondary.main}}
+        style={{background: theam.palette.secondary.main, color: theam.palette.text.primary}}
           type="password"
           name="cpassword"
           value={state.cpassword}
           onChange={handleChange}
-          placeholder="Conform Password"
+          placeholder="Confirm Password"
           required
 
         />

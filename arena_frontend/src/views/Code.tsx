@@ -11,6 +11,7 @@ import {
   Popper,
   styled,
   Tooltip,
+  useTheme,
 } from "@mui/material";
 
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -156,10 +157,31 @@ function SimplePopper() {
   );
 }
 
+const SplitBar = ({ 
+  active
+}: {
+  index: number;
+  active: boolean;
+}) => {
+  return (
+    <>
+      <div style={{ paddingRight: 2, width: "100%", height: "100%", display: "grid", placeItems: "center", backgroundColor: (active ? "blue" : ""), }}>
+        {
+          active ? <></> :
+            <div style={{ width: "3px", height: "27px", backgroundColor: "#999999", transform: "translate(-0px, 0px)", borderRadius: "2px" }}>
+            </div>
+        }
+      </div>
+    </>
+  );
+}
+
+
+
 export const StyledTabs = styled(Tabs)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
   "& .MuiTabs-indicator": {
-    backgroundColor: "#252525",
+    backgroundColor: theme.palette.text.primary,
     height: "2px",
   },
 }));
@@ -188,6 +210,8 @@ import Confetti from "react-confetti";
 import { useAuth } from "../components/Auth/AuthProvider";
 import BaseBox from "../components/common/BaseBox";
 
+
+
 const Code = () => {
   // TODO: Handle NaN
   const problemId = parseInt(useParams()["id"] || "");
@@ -197,6 +221,7 @@ const Code = () => {
   const [hsizes, setHsizes] = useState(["80%", "20%"] as (string | number)[]);
   const clipboard = useRef("");
   const [submissions, setSubmissions] = useState<any>([]);
+  const theme = useTheme();
   let [language, setLanguage] = useState(
     () => localStorage.getItem("current-lang") || "c"
   );
@@ -318,16 +343,22 @@ const Code = () => {
         <SplitPane
           split="vertical"
           sizes={sizes}
+          resizerSize={4}
           onChange={setSizes}
-          sashRender={undefined}
+          sashRender={(index, active) => <SplitBar index={index} active={active} />}
         >
-          <Pane minSize={100} maxSize="50%" style={{ height: "100%" }}>
+          <Pane minSize={100} maxSize="50%">
             {/* TODO: Code Refactoring */}
             <Card
               sx={{
-                height: "100%",
-                margin: "5px 2px 5px 10px",
-                overflowY: "auto",
+                height: "calc(100vh - 60px)",
+                borderRadius: "8px",
+                margin: "5px 5px 5px 10px",
+                boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                backgroundColor: (theme.palette.mode == "dark")? theme.palette.background.default: "",
+
               }}
             >
               <div
@@ -336,54 +367,74 @@ const Code = () => {
               >
                 <ArrowBackIcon
                   fontSize="large"
-                  sx={{ padding: 1, paddingBottom: 0, display: "inline-block" }}
+                  sx={{ padding: 1, paddingBottom: 0, display: "inline-block", }}
                 />
               </div>
-              <div style={{ width: "100%" }}>
-                <Box
-                  sx={{
-                    width: "100%",
-                    borderBottom: 1,
-                    borderColor: "divider",
-                  }}
+              {/* <div style={{ width: "100%",  }}> */}
+              <Box
+                sx={{
+                  width: "100%",
+                  // borderBottom: 1,
+                  // borderColor: "divider",
+                  position: "sticky",
+                  top: "0px",
+                  zIndex: "2",
+
+                }}
+              >
+
+                <StyledTabs
+                  onChange={(_e, t) => setTab(t)}
+                  aria-label="Problem and submissions lables"
+                  value={tab}
+                  variant="fullWidth"
+
                 >
-                  <StyledTabs
-                    onChange={(_e, t) => setTab(t)}
-                    aria-label="Problem and submissions lables"
-                    value={tab}
-                    variant="fullWidth"
-                  >
-                    <StyledTab label="Problem" value={1} />
-                    <StyledTab label="Submissions" value={2} />
-                  </StyledTabs>
-                </Box>
-                <Question id={problemId} hidden={tab != 1} />
-                <div hidden={tab != 2}>
-                  <div style={{ margin: "auto", width: "max-content" }}>
-                    <Tooltip title="Reload Submissions">
-                      <IconButton onClick={getSubmissions}>
-                        <ReplayIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                  {Submissions}
+                  <StyledTab label="Problem" value={1} />
+                  <StyledTab label="Submissions" value={2} />
+                </StyledTabs>
+              </Box>
+
+              <Question id={problemId} hidden={tab != 1} />
+              <div hidden={tab != 2}>
+                <div style={{ margin: "auto", width: "max-content" }}>
+                  <Tooltip title="Reload Submissions">
+                    <IconButton onClick={getSubmissions}>
+                      <ReplayIcon />
+                    </IconButton>
+                  </Tooltip>
                 </div>
+                {Submissions}
               </div>
+              {/* </div> */}
             </Card>
           </Pane>
           <SplitPane
             split="horizontal"
             sizes={hsizes}
             onChange={setHsizes}
-            sashRender={undefined}
+            // resizerSize={4}
+            sashRender={(_index, active) =>
+              <div style={{
+                width: "100%",
+                height: "100%",
+                marginTop:3,
+                display: "grid",
+                placeItems: "center",
+                backgroundColor: (active ? "blue" : ""),
+              }}>
+                {
+                  active ? <></> :
+                    <div style={{ width: "27px", height: "3px", backgroundColor: "#999999", transform: "translate(-0px, 0px)", borderRadius: "2px" }}>
+                    </div>
+                }
+              </div>}
           >
             <div
               style={{
                 height: "100%",
-                border: "1px solid rgb(250,210,210)",
-                backgroundColor: "white",
-                borderRadius: "5px",
-                marginTop: "5px",
+                margin: "5px 3px 3px 3px",
+                width: "99%"
               }}
             >
               <Editor
@@ -394,11 +445,14 @@ const Code = () => {
                 onValueChange={onValueChange}
               />
             </div>
-            <Console
-              id={problemId}
-              language={language}
-              setConfettiActive={setConfettiActive}
-            />
+            <Pane minSize={46}>
+
+              <Console
+                id={problemId}
+                language={language}
+                setConfettiActive={setConfettiActive} setSizes={setHsizes}
+              />
+            </Pane>
           </SplitPane>
         </SplitPane>
       </div>

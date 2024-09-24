@@ -11,10 +11,7 @@ textarea {
     transition: border-color 150ms ease;
     width: 90%;
   }
-  
-  textarea:hover {
-    /* border-color: #477bf4; */
-  }
+
   
   textarea:focus {
     outline: 2px solid #477BF5;
