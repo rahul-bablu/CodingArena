@@ -110,71 +110,7 @@ export const AdminEditor = ({
             lineHeight: 22,
             letterSpacing: 0,
           });
-          const triggerPaste = (text: string) => {
-            if (ed) {
-              const position = ed.getPosition()!;
-              ed?.executeEdits("", [
-                {
-                  range: new monaco.Range(
-                    position.lineNumber,
-                    position.column,
-                    position.lineNumber,
-                    position.column
-                  ),
-                  text: text,
-                  forceMoveMarkers: true,
-                },
-              ]);
-              const tmp = text.split(/\r\n|\r|\n/); 
-              const newPosition = {
-                lineNumber: position.lineNumber + tmp.length,
-                column: position.column + text.length,
-              };
-              ed.setPosition(newPosition);
-      
-              ed?.focus();
-            }
-          };
-      
-          // prevent Ctrl + v and c
-          ed?.onKeyDown((event) => {
-            const { keyCode, ctrlKey, metaKey } = event;
-            if ((keyCode === 33 || keyCode === 54) && (metaKey || ctrlKey)) {
-              if (ed) {
-                const model = ed.getModel()!;
-                const selection = ed.getSelection();
-                if (selection) {
-                  const selectedText = model.getValueInRange(selection);
-                  clipbord.current = selectedText;
-                //   alert(selectedText)
-                }
-              }
-              return;
-            }
-      
-            if (keyCode === monaco.KeyCode.Backspace) {
-              alert("Backspace")
-              return;
-            }
-            if (keyCode === 52 && (metaKey || ctrlKey)) {
-              triggerPaste(clipbord.current);
-              event.preventDefault();
-              return;
-            }
-          });
           
-          ed.onDidChangeModelContent(() => {
-            console.log(ed.getValue(), "Secound", cmplang.current);
-      
-            // onValueChange(ed.getValue(), cmplang.current);
-          });
-      
-          // prevent right click and past
-          ed.onDidPaste(() => {
-            // alert("No cheating");
-            ed.trigger("", "undo", undefined);
-            triggerPaste(clipbord.current);
-          });
         return ed;
         });
       

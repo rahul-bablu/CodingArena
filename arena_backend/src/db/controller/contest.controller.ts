@@ -156,11 +156,11 @@ router.get('/problems/user', async (req: Request, res: Response, next: NextFunct
             // TODO: validate contetst id type
             const c = await contestService.getContest(parseInt(req.query.contestId as string))
             const uc = await UserContest.findOne({ where: { ContestId: c.id, UserId: userId } });
-            if (!uc) return "User have to be registred"
-            if (uc.end == true) return "User has already ended the contest"
-            if (c.state == 'end') return res.send({ error: 'Contest has ended' })
+            if (!uc) throw "User have to be registred"
+            if (c.state == 'end') throw 'Contest has ended'
+            if (uc.end == true) throw "User has already ended the contest"
             if (c.state == 'manual')
-                return res.send({ error: 'Contest is not active' })
+                return res.status(400).send({ error: 'Contest is not active' })
             if (c.state == 'inactive') {
                 if (c.startTime > new Date()) {
 

@@ -5,7 +5,7 @@ import nodemailer from "nodemailer";
 import { Dialect, Sequelize } from "sequelize";
 dotenv.config();
 
-console.log(process.env.DB_NAME,  process.env.DB_HOST, process.env.DB_PASS)
+// console.log(process.env.DB_NAME,  process.env.DB_HOST, process.env.DB_PASS)
 export const sequelize = new Sequelize(
     process.env.DB_NAME || 'coding_club',
     process.env.DB_USER || 'root',

@@ -85,12 +85,11 @@ const Timer = ({ deadline, onzerorun }: { deadline: string, onzerorun:()=>void }
         // width: "115px",
       }}
     >
+      <p style={{fontSize: '2rem'}}>
       <AccessTimeIcon
-        fontSize="medium"
+        fontSize="large"
         sx={{ paddingInline: "5px", transform: "translate(0px, 2px)" }}
       />
-      <p>
-        {" "}
         {days < 10 ? "0" + days : days}d{" "}
         {hours < 10 ? "0" + hours : hours}h{" "}
         {minutes < 10 ? "0" + minutes : minutes}m{" "}
@@ -316,7 +315,7 @@ const FullScreenComponent = ({ children }: { children: React.ReactNode }) => {
             to continue.
           </Typography>
           <Typography sx={{ maxWidth: "700px" }} gutterBottom>Contest automatically end in</Typography>
-          <Timer deadline={(() => { let d = new Date(); d.setSeconds(d.getSeconds() + 10); return d.toString(); })()} onzerorun={function (): void {
+          <Timer deadline={(() => { let d = new Date(); d.setSeconds(d.getSeconds() + 5); return d.toString(); })()} onzerorun={function (): void {
               (async () => {
                 try {
                 const res = await Axios.post(

@@ -17,11 +17,11 @@ import {
   TableRow,
   Typography,
   useMediaQuery,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import Axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../common/Navbar";
 
 interface Problem {
@@ -43,6 +43,7 @@ interface LeaderboardProps {
   data: User[];
 }
 
+import ArrowBack from "@mui/icons-material/ArrowBack";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { TransitionProps } from "@mui/material/transitions";
@@ -83,8 +84,8 @@ export function ShowCode({
   userId: number;
   problemId: number;
 }) {
-  const {userObj} = useAuth()!;
-  console.log(useAuth())
+  const { userObj } = useAuth()!;
+  console.log(useAuth());
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const [subCode, setsubCode] = useState("");
@@ -94,11 +95,18 @@ export function ShowCode({
   const handleClickOpen = () => {
     Axios.get(
       `/api/problem/user/submission?userId=${userId}&problemId=${problemId}`
-    ).then(({data}) => {console.log(data); setsubCode(data)}).catch((_e)=>{
-      // alert(e+'in show code')
-      setsubCode("Couldn't load submission code");
-    }).finally(()=>{setOpen(true)});
-    
+    )
+      .then(({ data }) => {
+        console.log(data);
+        setsubCode(data);
+      })
+      .catch((_e) => {
+        // alert(e+'in show code')
+        setsubCode("Couldn't load submission code");
+      })
+      .finally(() => {
+        setOpen(true);
+      });
   };
 
   const handleClose = () => {
@@ -116,7 +124,7 @@ export function ShowCode({
         color="success"
         variant="contained"
         size="small"
-        disabled={userId.toString()!=userObj!.id && userObj?.role == 'user'} // TODO: handle
+        disabled={userId.toString() != userObj!.id && userObj?.role == "user"} // TODO: handle
       >
         Show code
       </Button>
@@ -127,9 +135,7 @@ export function ShowCode({
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
       >
-        <DialogTitle id="responsive-dialog-title">
-          {"Code"}
-        </DialogTitle>
+        <DialogTitle id="responsive-dialog-title">{"Code"}</DialogTitle>
         <DialogContent>
           <Card
             sx={{
@@ -165,9 +171,11 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({ data }) => {
 
   return (
     <Box sx={{ padding: 2, maxWidth: "1024px", margin: "auto" }}>
-      <div style={{marginInline: 'auto', width:'max-content'}}><Typography variant="h4" gutterBottom >
-        Leaderboard
-      </Typography></div>
+      <div style={{ marginInline: "auto", width: "max-content" }}>
+        <Typography variant="h4" gutterBottom>
+          Leaderboard
+        </Typography>
+      </div>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -259,6 +267,7 @@ const LeaderboardTable: React.FC<LeaderboardProps> = ({ data }) => {
 const Leaderbord = () => {
   const [qs, setQs] = useState<User[]>([]);
   const { id: contestId } = useParams()!;
+  const navigate = useNavigate();
   useEffect(() => {
     (async () => {
       const { data } = await Axios.get(`/api/contest/leaderbord/${contestId}`);
@@ -270,6 +279,15 @@ const Leaderbord = () => {
   return (
     <>
       <Navbar />
+      <div
+        style={{ width: "10%", marginLeft: 15 }}
+        onClick={() => navigate(-1)}
+      >
+        <ArrowBack
+          fontSize="large"
+          sx={{ padding: 1, paddingBottom: 0, display: "inline-block" }}
+        />
+      </div>
       <LeaderboardTable data={qs} />
     </>
   );

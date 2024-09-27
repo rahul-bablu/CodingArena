@@ -95,7 +95,9 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         throw new Error(response.data);
       } catch (err:any) {
-        console.error(err);
+        if(err.response.status == 500) {
+          alert?.showAlert("Couldn't connect to the server please try later", "error")
+        }
         alert?.showAlert("" + err.response.data.message, "error");
       } finally {
         setLoading(false);

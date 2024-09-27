@@ -75,15 +75,20 @@ const Problems = () => {
   const navigate = useNavigate();
   useEffect(() => {
     (async () => {
-      const { data } = await Axios.get(
-        `/api/contest/problems/user?contestId=${contestId}`
-      );
-      setQs(data.problems);
-      console.log(data);
-      // setStartTime(data.startTime);
-      // setEndTime(data.endTime);
-      // setState(data.state);
-      setContestTitle(data.title);
+      try {
+        const { data } = await Axios.get(
+          `/api/contest/problems/user?contestId=${contestId}`
+        );
+        setQs(data.problems);
+        // console.log(data);
+        // setStartTime(data.startTime);
+        // setEndTime(data.endTime);
+        // setState(data.state);
+        setContestTitle(data.title);
+      } catch (e: any) {
+        alert?.showAlert(e.response.data.message, "error");
+        navigate("/contests");
+      }
     })();
   }, []);
 
@@ -93,12 +98,23 @@ const Problems = () => {
       <Box display={"flex"}>
         <div style={{ width: "80%", margin: "auto" }}>
           <div>
-            <Typography fontSize={"2rem"}>{contestTitle}</Typography>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
+            <Typography fontSize={"2rem"}>{contestTitle}</Typography><Card
+              sx={{
+                paddingInline: "20px",
+                paddingBlock: "10px",
+                marginBlock: "10px",
+              }}
+              onClick={() => navigate(`/leaderboard/${contestId}`)}
+            >
+              {" "}
+              View Leaderboard
+            </Card>
+            </div>
             {/* <div style={{display: 'flex' , alignItems: 'center', gap: '6px'}}>
 
             {state == 'active' && endTime? <>{"Ends in: "}<Timer deadline={endTime} type={"end"}/></>: <></>} {state == 'manualactive' && startTime?<>{"Started "}<Timer deadline={startTime} type={"start"} /> {" ago"}</>:<></>}
             </div> */}
-          
           </div>
           {qs ? (
             qs.map(
@@ -195,27 +211,27 @@ const Problems = () => {
               No Problems to display...
             </div>
           )}
-          <div style={{margin: 'auto', width: 'max-content'}}>
-          <Button
-          size="large"
-          sx={{width: '200px'}}
+          <div style={{ margin: "auto", width: "max-content" }}>
+            <Button
+              size="large"
+              sx={{ width: "200px" }}
               variant="contained"
               onClick={async () => {
                 try {
-                const res = await Axios.post(
-                  `/api/users/endcontest`,{contestId: contestId}
-                );
-                navigate('/contests');
-                alert?.showAlert(res.data, "success")
-              } catch (e ) {
-                console.log((e))
-                alert?.showAlert((e as any).message as string, "error")
-              }
+                  const res = await Axios.post(`/api/users/endcontest`, {
+                    contestId: contestId,
+                  });
+                  navigate("/contests");
+                  alert?.showAlert(res.data, "success");
+                } catch (e) {
+                  console.log(e);
+                  alert?.showAlert((e as any).message as string, "error");
+                }
               }}
             >
               Submit
             </Button>
-            </div>
+          </div>
         </div>
       </Box>
     </div>

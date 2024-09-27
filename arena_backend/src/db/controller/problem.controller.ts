@@ -99,6 +99,7 @@ const submitToJudge0 = async (sourceCode: string, languageId: number, stdin?: st
         language_id: languageId,
         base64_encoded: true,
         stdin: encodedStdin,
+        compiler_options: languageId == 50 ? "-lm":"",
         expected_output: encodedExpectedOutput,
         cpu_time_limit,
         memory_limit,
@@ -153,8 +154,8 @@ router.post('/run/testcase', async (req: any, res: Response, next: NextFunction)
         if (!tc)
             throw 'No valid language provided'
 
-        let inp = fs.readFileSync(path.join('data', tc.input)), out = fs.readFileSync(path.join('data', tc.output));
-
+        const inp = fs.readFileSync(path.join(__dirname, '../../../data', tc.input)), out = fs.readFileSync(path.join(__dirname, '../../../data', tc.output));
+            
         res.json(await runProgram(req.body.code, language_id, inp.toString(), out.toString()));
 
         // res.json({ output: Buffer.from(data.compile_output || data.stderr || data.stdout || '', 'base64').toString('utf-8'), verdect: data.status.description === "Accepted" && req.body.custominp ? "Result" : data.status.description });
@@ -289,7 +290,7 @@ router.post('/submission/:problemid', async (req: any, res: Response, next: Next
 
         // run all Test Cases and compute the score 
         for (const io of ios) {
-            const inp = fs.readFileSync(path.join('data', io.input)), out = fs.readFileSync(path.join('data', io.output));
+            const inp = fs.readFileSync(path.join(__dirname, '../../../data', io.input)), out = fs.readFileSync(path.join(__dirname, '../../../data', io.output));
             maxScore += io.score;
             const data = await runProgram(req.body.code, language_id, inp.toString(), out.toString());
             if (data && (typeof data.status != typeof 401) && data.status.description) {
