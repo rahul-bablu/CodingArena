@@ -95,6 +95,14 @@ const router = createBrowserRouter([
             ),
           },
           {
+            path: "/test/leaderboard/:id",
+            element: (
+              <FullScreenComponent>
+                <Leaderbord />
+              </FullScreenComponent>
+            ),
+          },
+          {
             element: <AdminRoute />,
             children: [
               {

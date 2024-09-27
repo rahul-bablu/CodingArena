@@ -105,9 +105,8 @@ const Problems = () => {
                 paddingBlock: "10px",
                 marginBlock: "10px",
               }}
-              onClick={() => navigate(`/leaderboard/${contestId}`)}
+              onClick={() => navigate(`/test/leaderboard/${contestId}`)}
             >
-              {" "}
               View Leaderboard
             </Card>
             </div>

@@ -157,7 +157,7 @@ const AdminCodeRunner = () => {
           split="vertical"
           sizes={sizes}
           onChange={setSizes}
-          sashRender={undefined}
+          sashRender={() => <div></div>}
           // resizerSize={7}
         >
           <Pane minSize={200} maxSize="80%" style={{ height: "100%" }}>

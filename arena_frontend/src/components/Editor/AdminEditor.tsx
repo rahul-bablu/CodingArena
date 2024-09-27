@@ -81,7 +81,6 @@ export const AdminEditor = ({
   initCode: MutableRefObject<string>;
 }) => {
   const cmplang = useRef(language.current);
-  const clipbord = useRef("");
   const [editor, setEditor] =
     useState<monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
