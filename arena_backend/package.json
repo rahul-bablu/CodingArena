@@ -6,7 +6,11 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node build/src/index.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "db:create": "sequelize db:create",
+    "db:migrate": "cd src/db && sequelize db:migrate",
+    "db:migrate:undo": "cd src/db && sequelize db:migrate:undo",
+    "db:test": "sequelize"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +37,7 @@
     "@types/node": "^20.12.7",
     "@types/nodemailer": "^6.4.15",
     "nodemon": "^3.1.0",
+    "sequelize-cli": "^6.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }

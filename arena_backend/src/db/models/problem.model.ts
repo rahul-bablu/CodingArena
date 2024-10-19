@@ -1,22 +1,23 @@
 import {
-  Model, DataTypes, HasManyAddAssociationMixin,
-  HasManyAddAssociationsMixin,
-  ForeignKey,
-  HasManyCreateAssociationMixin,
-  NonAttribute,
   Association,
-  HasManyGetAssociationsMixin,
-  HasManyRemoveAssociationMixin,
   BelongsToGetAssociationMixin,
-  HasManyHasAssociationMixin,
+  DataTypes,
+  ForeignKey,
+  HasManyAddAssociationMixin,
+  HasManyAddAssociationsMixin,
   HasManyCountAssociationsMixin,
-  HasOne,
+  HasManyCreateAssociationMixin,
+  HasManyGetAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasManyRemoveAssociationMixin,
   HasOneCreateAssociationMixin,
-  HasOneGetAssociationMixin
+  HasOneGetAssociationMixin,
+  Model,
+  NonAttribute
 } from 'sequelize';
 import { sequelize } from '../common';
-import { User } from './user.model';
 import { Contest } from './contest.model';
+import { User } from './user.model';
 
 class ProblemIO extends Model {
   declare problemId: ForeignKey<Problem['id']>;
@@ -44,6 +45,7 @@ class Problem extends Model {
   declare countUsers: HasManyCountAssociationsMixin;
   declare hasUser: HasManyHasAssociationMixin<User, number>;
   declare getStaterCode: HasOneGetAssociationMixin<StaterCode>;
+  declare hasStaterCode: HasManyHasAssociationMixin<StaterCode, number>;
   declare createStaterCode: HasOneCreateAssociationMixin<StaterCode>;
   declare static associations: {
     problemio: Association<Problem, ProblemIO>;
@@ -210,8 +212,13 @@ StaterCode.hasOne(Problem, { onDelete: 'CASCADE', hooks: true })
 User.belongsToMany(Problem, { through: UserProblems, });
 Problem.belongsToMany(User, { through: UserProblems, });
 
+User.hasMany(UserProblems, { foreignKey: 'userId'});
+
+UserProblems.belongsTo(User,  { foreignKey: 'UserId'})
+
 // A user can have multiple submissions for a problem
 Submissions.belongsTo(UserProblems, { targetKey: 'id', foreignKey: 'upid', onDelete: 'CASCADE', hooks: true });
 UserProblems.hasMany(Submissions, { sourceKey: 'id', foreignKey: 'upid', onDelete: 'CASCADE', hooks: true });
 
-export { Problem, UserProblems, ProblemIO, Submissions };
+export { Problem, ProblemIO, Submissions, UserProblems };
+

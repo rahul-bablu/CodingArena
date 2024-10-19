@@ -25,8 +25,22 @@ import AdminHome from "./components/AdminViews/AdminHome";
 import ViewSubmissions from "./components/AdminViews/ViewSubmissions";
 import AdminRoute from "./components/Auth/AdminRouts";
 import LoadingScreen from "./components/common/LoadingScreen";
+import NotFound from "./components/common/NotFound";
+import Navbar from "./components/Navbar/Navbar";
 import AdminCodeRunner from "./views/AdminCodeRunner";
+import Room from "./views/Rooms/Room";
+import RoomContests from "./views/Rooms/RoomContests";
+import RoomLeaderboard from "./views/Rooms/RoomLeaderboard";
 const router = createBrowserRouter([
+  {
+    path: "/tt",
+    element: (
+      <>
+        <Navbar />
+        <div style={{background: '#red', height: '200vh'}}> Hello </div>
+      </>
+    ),
+  },
   {
     path: "/",
     element: (
@@ -35,6 +49,7 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
     children: [
+      
       {
         path: "/lab",
         element: <AdminCodeRunner />,
@@ -59,6 +74,14 @@ const router = createBrowserRouter([
             element: <Contests />,
           },
           {
+            path: '/rooms',
+            element: <Room />,
+          },
+          {
+            path: '/rooms/:roomName',
+            element: <RoomContests />,
+          },
+          {
             path: "/problems/:id",
             element: (
               <FullScreenComponent>
@@ -73,6 +96,10 @@ const router = createBrowserRouter([
           {
             path: "/leaderboard/:id",
             element: <Leaderbord />,
+          },
+          {
+            path: "rooms/leaderboard/:id",
+            element: <RoomLeaderboard />,
           },
           {
             path: "/test/:id",
@@ -135,6 +162,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  { path:"*", element:<NotFound /> }
 ]);
 const lightTheme = createTheme({
   palette: {

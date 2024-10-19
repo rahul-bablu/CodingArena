@@ -3,6 +3,7 @@ import { col, fn } from "sequelize";
 import { allowAdmin } from "../../_middleware/authorize";
 import { Contest, UserContest } from "../models/contest.model";
 import { Problem } from "../models/problem.model";
+import { Room } from "../models/room.model";
 import { User } from "../models/user.model";
 import * as contestService from '../services/contest.service';
 import * as problemService from '../services/problem.service';
@@ -18,6 +19,7 @@ router.post('/create', allowAdmin(), async (req: Request, res: Response, next: N
         next(error)
     }
 })
+
 
 router.get('/leaderbord/:id', async (req: Request, res: Response, next: NextFunction) => {
     const contestId = parseInt(req.params.id);
@@ -139,6 +141,7 @@ router.post('/adduser', async (req: Request, res: Response, next: NextFunction) 
         console.log("\n\n\HI", req.body)
         const c = await Contest.findByPk(parseInt(req.body.contestId));
         if (!c) throw "Invalid Contest ID"
+        if((await c?.getRooms()).length > 0) "You need to opt into the room first"
         await c.addUser(req.body.userId)
         console.log(await c.getUsers())
         // if (uc == null) throw 'Could not register'
@@ -233,10 +236,20 @@ router.get('/user', async (req: any, res: Response, next: NextFunction) => {
         // TODO: error check
         const { id: userId } = req.user as User;
         // const contests = await Contest.findAll({ where:  {state: {[Op.in]:['active', 'manualactive', 'inactive',]} ,}, });
-        const contests = await Contest.findAll();
+        // const contests = await Contest.findAll();
+        const contestsWithoutRooms = await Contest.findAll({
+            include: [{
+              model: Room,
+              as: 'rooms',
+              required: false,  // LEFT OUTER JOIN
+            }],
+            where: {
+              '$rooms.id$': null,
+            }
+          });
         res.json(
             (await Promise.all(
-                contests.map(
+                contestsWithoutRooms.map(
                     async (c, index) => {
                         const uc = await UserContest.findOne({ where: { ContestId: c.id, UserId: userId } });
                         if (uc == null && c.state == 'end') return null;

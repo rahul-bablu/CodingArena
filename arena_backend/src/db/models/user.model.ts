@@ -2,6 +2,7 @@ import { Association, DataTypes, HasManyAddAssociationMixin, HasManyAddAssociati
 import { sequelize } from '../common';
 import { Contest } from './contest.model';
 import { Problem } from './problem.model';
+import { Room } from './room.model';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -98,6 +99,8 @@ User.init(
     tableName: 'users',
   }
 );
+
+User.belongsToMany(Room, { through: 'UsersRooms', foreignKey: 'userId', as: 'rooms' });
 
 User.hasOne(VerifyToken, {
   as: 'token',

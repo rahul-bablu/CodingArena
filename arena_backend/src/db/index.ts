@@ -1,5 +1,5 @@
+import { Contest } from './assocations';
 import { sequelize } from "./common";
-import { Contest } from "./models/contest.model";
 import { Problem, ProblemIO, Submissions, UserProblems } from "./models/problem.model";
 import { User, UserRole, VerifyToken } from "./models/user.model";
 

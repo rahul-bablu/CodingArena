@@ -65,11 +65,25 @@ export const CurrentContest = ({ qs }: { qs: any[] }) => {
         display: "flex",
         flexWrap: "wrap",
         maxWidth: "1000px",
-        margin: "auto",
+        margin: "0px auto",
+        position: 'relative',
+        minHeight: "200px"
       }}
     >
       <LableTitle title="Current Contest" />
-      {
+      {qs.length == 0 ? (
+        <div
+          style={{
+            fontFamily: 'sans-serif',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          No contests here...
+        </div>
+      ) : (
         qs.map(
           ({
             title,
@@ -161,6 +175,7 @@ export const CurrentContest = ({ qs }: { qs: any[] }) => {
             </Grow>
           )
         )
+      )
         // JSON.stringify(qs)
       }
     </div>

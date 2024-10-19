@@ -2,8 +2,7 @@ import { Logout } from "@mui/icons-material";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Avatar, Box, Button, Divider, ListItemIcon, Menu, MenuItem, styled } from "@mui/material";
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../Auth/AuthProvider";
+import { useLocation, useNavigate } from "react-router-dom";
 import style from "./Navbar.module.css";
 
 // import Logo from '../../../public/plogo_for_cc.svg';
@@ -78,28 +77,9 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const NavButtonActive = styled(Button)(({ theme }) => ({
-  textTransform: 'none', // Remove uppercase transformation
-  color: theme.palette.text.primary, // Use the primary text color
-  position: 'relative',
-  paddingInline: '10px',
-  fontWeight: 'bold',
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    width: '95%',
-    height: '2px',
-    display: 'block',
-    marginTop: '20px',
-    borderRadius: '.25rem',
-    // left: '0',
-    background: theme.palette.text.primary,
-    transition: 'width 0.3s ease',
-  },
-}));
-
 const NavBox = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.mode == 'dark' ? '#333' : '#fff',
+  backgroundColor: '#ffffff12',
+  backdropFilter: 'blur(2px)',
   color: theme.palette.text.primary,
   borderBottom: `1px solid ${theme.palette.divider}`,
   position: 'sticky',
@@ -110,58 +90,37 @@ const NavBox = styled(Box)(({ theme }) => ({
 }));
 
 const Navbar = () => {
-  const pages = ["Problems", "Contests", "Room"];
-  const move = ["/", "/contests", "/rooms"] as string[];
+  const pages = ["Problems", "Contests"];
+  const move = ["/", "/contests"] as string[];
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logOut } = useAuth() || { user: undefined };
-  const linkIdx = move.findIndex((path) => location.pathname == path)
+  // const { user, logOut } = useAuth() || { user: undefined };
 
   return (
     <NavBox>
     <nav className={""} style={{}}>
       
-      {user ? <UserDisplay user={user} logOut={logOut} /> : location.pathname == '/login' ? <></> :<Link to="/login">Login</Link>}
+      {/* {user ? <UserDisplay user={user} logOut={logOut} /> : location.pathname == '/login' ? <></> :<Link to="/login">Login</Link>} */}
       <div
         style={{
-          fontFamily: "cursive",
+          fontFamily: "sans-serif",
           fontSize: "x-large",
-          fontWeight: "bold",
+          fontWeight: "800",
         }}
       >
-        Coding Arena
+        
+        Coding Club
       </div>
       {/* <Logo /> */}
       {/* <img src={Logo} width={100}/> */}
-      {linkIdx != -1 ? (
+      { (
         <div className={style.nav}>
         
           {pages.map((page, index) => (
-            (index == linkIdx) ?<NavButtonActive>{page}</NavButtonActive>:<NavButton onClick={() => navigate(move[index])}>{page}</NavButton>
-            // <a href={move[index]} >{page}</a>
-            // <div
-            //   style={{ position: "relative" }}
-            //   className={style.navMenuItem}
-            //   onClick={() => navigate(move[index])}
-            // >
-            //   {page}
-
-            //   <div
-            //     style={{
-            //       position: "absolute",
-            //       margin: "auto",
-            //       bottom: -16,
-            //       transition: "width 2s",
-            //       width: location.pathname == move[index] ? "100%" : "0%",
-            //       backgroundColor: "black",
-            //       height: "4px",
-            //     }}
-            //   ></div>
-            // </div>
+            <NavButton onClick={() => navigate(move[index])}>{page}</NavButton>
+            
           ))}
         </div>
-      ) : (
-        <></>
       )}
     </nav>
     </NavBox>

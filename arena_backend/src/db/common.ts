@@ -16,6 +16,14 @@ export const sequelize = new Sequelize(
     }
 );
 
+export const configs = {
+    database: process.env.DB_NAME || 'coding_club',
+    username: process.env.DB_USER || 'root',
+    password: process.env.DB_PASS || 'root',
+    host: process.env.DB_HOST || 'localhost',
+    dialect: process.env.DB as Dialect || 'mysql'
+}
+
 export const sendEmail = async (options: any) => {
 
     try {

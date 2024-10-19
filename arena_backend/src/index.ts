@@ -8,6 +8,7 @@ import { authorize } from "./_middleware/authorize";
 import { errorHandler } from "./_middleware/error-handler";
 import contestRouter from "./db/controller/contest.controller";
 import problemRouter from "./db/controller/problem.controller";
+import roomRouter from "./db/controller/room.controller";
 import userRouter from "./db/controller/user.controller";
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, '/../data')))
 
 app.use('/problem', authorize(), problemRouter)
 app.use('/contest', authorize(), contestRouter)
+app.use('/room', authorize(), roomRouter)
 
 app.use(errorHandler);
 

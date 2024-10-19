@@ -3,7 +3,7 @@ export const LableTitle = ({ title }: { title: string }) => {
     <div
       style={{
         fontWeight: 800,
-        margin: "auto",
+        margin: "0px auto",
         textAlign: "center",
         fontSize: "20px",
         fontFamily: '"M PLUS Rounded 1c", sans-serif',

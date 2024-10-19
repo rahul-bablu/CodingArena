@@ -10,6 +10,7 @@ import {
 } from 'sequelize';
 import { sequelize } from '../common';
 import { Problem } from './problem.model';
+import { Room } from './room.model';
 import { User } from './user.model';
 
 export enum ContestState {
@@ -28,6 +29,8 @@ class Contest extends Model {
   declare title: string;
   // declare createrID: number;
 
+  declare hasRoom:  HasManyHasAssociationMixin<Room, number>;
+  declare getRooms: HasManyGetAssociationsMixin<Room>;
   declare getUsers: HasManyGetAssociationsMixin<User>;
   declare getProblems: HasManyGetAssociationsMixin<Problem>;
   declare hasUser: HasManyHasAssociationMixin<User, number>;
@@ -99,23 +102,6 @@ UserContest.init(
     }
   }, { sequelize }
 )
-
-User.belongsToMany(Contest, { through: UserContest });
-Contest.belongsToMany(User, { through: UserContest });
-
-UserContest.belongsTo(User);
-UserContest.belongsTo(Contest);
-
-Contest.hasMany(Problem, {
-  sourceKey: 'id',
-  foreignKey: 'contestId',
-  as: 'problems',
-});
-
-Problem.belongsTo(Contest, {
-  foreignKey: 'contestId',
-  as: 'contest',
-});
 
 export { Contest, UserContest };
 
