@@ -1,0 +1,61 @@
+.container {
+    
+    gap: 8px;  
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: min(90%, 600px);
+    background-color: var(--bg-color);
+  }
+  
+  .box {
+    position: relative;
+    width: 400px;
+    height: 150px;
+    opacity: 1;
+  }
+  
+  .box::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    transition: opacity 500ms;
+    background: radial-gradient(
+      600px circle at var(--mouse-x) var(--mouse-y), 
+      rgb(var(--text-color-rgb), 50%)
+      transparent 20%
+    );
+    z-index: 1;
+  }
+  
+  .box::before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    transition: opacity 500ms;
+    background: radial-gradient(
+      500px circle at var(--mouse-x) var(--mouse-y), 
+      rgb(var(--text-color-rgb), 100%),
+      transparent 30%
+    );
+    z-index: 3;
+  }
+  
+  .box-content {
+    border: 1px solid rgba(var(--text-color-rgb), 10%);
+    background-color: var(--bg-color);
+    inset: 1px;
+    opacity: 1;
+    position: absolute;
+    z-index: 4;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .box-content:hover {
+    opacity: 0.9;
+  }
+  
+  

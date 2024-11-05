@@ -1,0 +1,18 @@
+.__card-page-name {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.25rem 0.5rem;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+  --transform-translate-y: 0;
+  opacity: 1;
+  color: #ffff;
+}
+
+@media (min-width: 1024px) {
+  .__card-page-name {
+    font-size: 3.75rem;
+    line-height: 1;
+  }
+}

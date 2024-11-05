@@ -1,14 +1,25 @@
 import { Logout } from "@mui/icons-material";
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { Avatar, Box, Button, Divider, ListItemIcon, Menu, MenuItem, styled } from "@mui/material";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import {
+  Avatar,
+  Box,
+  Button,
+  Divider,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  styled,
+} from "@mui/material";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import style from "./Navbar.module.css";
 
 // import Logo from '../../../public/plogo_for_cc.svg';
-import './Navbar.module.css';
+import { motion } from "framer-motion";
+import "./Navbar.module.css";
+import "./styles.css";
 
-function UserDisplay({ user, logOut }: { user: string, logOut:()=>void }) {
+function UserDisplay({ user, logOut }: { user: string; logOut: () => void }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -22,10 +33,17 @@ function UserDisplay({ user, logOut }: { user: string, logOut:()=>void }) {
   return (
     <div>
       <Button
-      
-        sx={{ margin:0,padding:0,textTransform: 'none', color:'inherit', display: "flex", alignItems: "center", '&:hover': {backgroundColor: 'inherit'}, '&:checked':{} }}
+        sx={{
+          margin: 0,
+          padding: 0,
+          textTransform: "none",
+          color: "inherit",
+          display: "flex",
+          alignItems: "center",
+          "&:hover": { backgroundColor: "inherit" },
+          "&:checked": {},
+        }}
         disableRipple
-        
         onClick={handleClick}
       >
         <Avatar sx={{ height: "30px", width: "30px", marginRight: 1 }}></Avatar>{" "}
@@ -42,87 +60,95 @@ function UserDisplay({ user, logOut }: { user: string, logOut:()=>void }) {
       >
         {/* <MenuItem onClick={handleClose}>Profile</MenuItem>
         <MenuItem onClick={handleClose}>My account</MenuItem> */}
-        <MenuItem onClick={() => navigate('/admin/home')}><ListItemIcon><AdminPanelSettingsIcon/></ListItemIcon>Admin View</MenuItem>
+        <MenuItem onClick={() => navigate("/admin/home")}>
+          <ListItemIcon>
+            <AdminPanelSettingsIcon />
+          </ListItemIcon>
+          Admin View
+        </MenuItem>
         <Divider />
-        <MenuItem onClick={logOut}><ListItemIcon>
-
-        
+        <MenuItem onClick={logOut}>
+          <ListItemIcon>
             <Logout fontSize="small" />
-          </ListItemIcon>Logout</MenuItem>
+          </ListItemIcon>
+          Logout
+        </MenuItem>
       </Menu>
     </div>
   );
 }
 
 const NavButton = styled(Button)(({ theme }) => ({
-  textTransform: 'none', // Remove uppercase transformation
-  color: theme.palette.text.primary, // Use the primary text color
-  position: 'relative',
-  paddingInline: '10px',
-  '&::after': {
+  textTransform: "none",
+  color: "var(--text-color)",
+  position: "relative",
+  fontSize: "0.95rem",
+  paddingInline: "10px",
+  "&::after": {
     content: '""',
-    position: 'absolute',
-    width: '0',
-    height: '2px',
-    display: 'block',
-    marginTop: '20px',
-    right: '0',
-    background: theme.palette.text.primary,
-    transition: 'width 0.3s ease',
+    position: "absolute",
+    width: "0",
+    height: "2px",
+    display: "block",
+    marginTop: "20px",
+    right: "0",
+    background: "var(--text-color)",
+    transition: "width 0.3s ease",
   },
-  '&:hover::after': {
-    width: '95%',
-    left: '0',
-    backgroundColor: theme.palette.text.primary,
+  "&:hover::after": {
+    width: "95%",
+    left: "0",
+    backgroundColor: "var(--text-color)",
   },
 }));
 
 const NavBox = styled(Box)(({ theme }) => ({
-  backgroundColor: '#ffffff12',
-  backdropFilter: 'blur(2px)',
+  backgroundColor: "#ffffff12",
+  backdropFilter: "blur(8px)",
   color: theme.palette.text.primary,
-  borderBottom: `1px solid ${theme.palette.divider}`,
-  position: 'sticky',
-  display: 'flex',
-  justifyContent: "space-around",
+  // borderBottom: `1px solid ${theme.palette.divider}`,
+  position: "fixed",
+  paddingBlock: "5px",
+  width: "100%",
+  
   top: 0,
   zIndex: 100,
 }));
 
 const Navbar = () => {
-  const pages = ["Problems", "Contests"];
-  const move = ["/", "/contests"] as string[];
+  const pages = ["Anouncements", "Contests"];
+  const move = ["/tt#asdfghjkl", "/contests"] as string[];
   const navigate = useNavigate();
   const location = useLocation();
   // const { user, logOut } = useAuth() || { user: undefined };
 
   return (
     <NavBox>
-    <nav className={""} style={{}}>
-      
+      <motion.div
+      initial={{ y: '-110%' }}
+      style={{display: "flex",
+        alignItems: "center",
+        justifyContent: "space-around",}}
+      animate={
+        { y: 0 }
+      }
+      transition={{ duration: 0.5 , ease: "easeOut", delay: 2.5 }}
+    >
+      {/* <nav className={""} style={{}}> */}
+
       {/* {user ? <UserDisplay user={user} logOut={logOut} /> : location.pathname == '/login' ? <></> :<Link to="/login">Login</Link>} */}
-      <div
-        style={{
-          fontFamily: "sans-serif",
-          fontSize: "x-large",
-          fontWeight: "800",
-        }}
-      >
-        
-        Coding Club
-      </div>
+      <div className="__name-logo">Coding Club</div>
       {/* <Logo /> */}
       {/* <img src={Logo} width={100}/> */}
-      { (
-        <div className={style.nav}>
-        
+      {
+        <div className={"__nav-buttons "+style.nav}>
           {pages.map((page, index) => (
             <NavButton onClick={() => navigate(move[index])}>{page}</NavButton>
-            
           ))}
         </div>
-      )}
-    </nav>
+      }
+      </motion.div>
+      {/* </nav> */}
     </NavBox>
   );
 };

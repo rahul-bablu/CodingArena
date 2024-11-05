@@ -75,9 +75,9 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
     try {
         const c = await roomService.getRoomByName(req.body.roomName);
         const userId = (req as any).user.id; // it has because of authorize middleware
-
+        console.log(c, c.open)
         if (c.code != req.body.roomCode) throw "Invalid room details"
-        if (!c.open) "Room not found"
+        if (!c.open) throw "Room not found"
         if (!c) throw "Invalid Room ID"
         await c.addUser(userId)
         // if (uc == null) throw 'Could not register'

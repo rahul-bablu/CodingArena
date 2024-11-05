@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Calligraffitti&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+.__name-span {
+  font-family: "Bebas Neue", sans-serif;
+  letter-spacing: 0.07em;
+  /* display: inline-block; */
+  color: var(--text-color);
+  padding-inline: 7px;
+  font-size: 1.25em;
+  
+}
+
+.__stroke-only {
+  color: transparent;
+  -webkit-text-stroke: var(--text-color);
+  -webkit-text-stroke-width: 1px;
+  font-weight: 600;
+}
+
+.__name-bg {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 900;
+  color: var(--bg-color);
+  transition: 300ms ease-in-out;
+  letter-spacing: 0.02em;
+  font-size: 4em;
+}
+
+@keyframes move-up {
+  0% {
+    transform-origin: 15.725px 60px;
+    transform: translate(0px, 100%);
+   
+  }
+  100% {
+    transform-origin: 15.725px 60px;
+    transform: translate(0px, 0%);
+    
+  }
+}
+
+.animated-text {
+  overflow: hidden;
+  display: inline-block;
+  white-space: nowrap;
+  animation: move-up 1s cubic-bezier(0.18, 0.89, 1, 1.19), all 1s ease;
+}
+
+.animated-letter {
+  display: inline-block;
+  transform: translateY(100%);
+  animation: moveUp 0.5s cubic-bezier(0.01, 0.26, 0.24, 0.89) forwards, all 1s ease;
+}
+
+.__collage-font {
+    font-family: "Calligraffitti", cursive;
+}
+
+@keyframes moveUp {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes grow {
+  0% {
+    opacity: 0;
+    /* filter:blur('8px'); */
+    /* scale: 0; */
+  }
+  100% {
+    /* scale: 1; */
+    opacity: 1;
+  }
+}
+
+
+
+.animating-grow {
+  animation: grow 1.5s ease 2s forwards;
+  /* animation-delay: 1s; */
+  opacity: 0;
+}
+
+@media (min-width: 640px) {
+  .__name-span {
+      font-size: 1.7em;
+  }
+  .__name-bg {
+    font-size: 7em;
+  }
+}
+
+@media (min-width: 768px) {
+  .__name-span {
+      font-size: 3em;
+  }
+}
+
+@media (min-width: 1024px) {
+  .__name-span {
+      font-size: 3em;
+  }
+}

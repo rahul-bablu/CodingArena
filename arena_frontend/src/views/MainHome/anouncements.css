@@ -1,0 +1,27 @@
+.__anoun-cards {
+  display: flex;
+  justify-content: space-evenly;
+  column-gap: 20px;
+  row-gap: 20px;
+  
+  
+  flex-wrap: wrap;
+}
+
+.__anoun-title {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+@media (min-width: 640px) {
+    .__anoun-title {
+        font-size: 4rem;
+    }
+  .__anoun-cards {
+    padding: 30px;
+    margin-inline: 30px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}

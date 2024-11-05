@@ -21,25 +21,21 @@ const EditUsersPage = React.lazy(() => import("./views/EditUsers"));
 
 import { styled } from "@mui/system";
 import Axios from "axios";
+import { AnimatePresence } from "framer-motion";
 import AdminHome from "./components/AdminViews/AdminHome";
 import ViewSubmissions from "./components/AdminViews/ViewSubmissions";
 import AdminRoute from "./components/Auth/AdminRouts";
 import LoadingScreen from "./components/common/LoadingScreen";
 import NotFound from "./components/common/NotFound";
-import Navbar from "./components/Navbar/Navbar";
 import AdminCodeRunner from "./views/AdminCodeRunner";
+import ClubHome from "./views/MainHome/ClubHome";
 import Room from "./views/Rooms/Room";
 import RoomContests from "./views/Rooms/RoomContests";
 import RoomLeaderboard from "./views/Rooms/RoomLeaderboard";
 const router = createBrowserRouter([
   {
     path: "/tt",
-    element: (
-      <>
-        <Navbar />
-        <div style={{background: '#red', height: '200vh'}}> Hello </div>
-      </>
-    ),
+    element: <ClubHome />,
   },
   {
     path: "/",
@@ -49,7 +45,6 @@ const router = createBrowserRouter([
       </AuthProvider>
     ),
     children: [
-      
       {
         path: "/lab",
         element: <AdminCodeRunner />,
@@ -74,11 +69,11 @@ const router = createBrowserRouter([
             element: <Contests />,
           },
           {
-            path: '/rooms',
+            path: "/rooms",
             element: <Room />,
           },
           {
-            path: '/rooms/:roomName',
+            path: "/rooms/:roomName",
             element: <RoomContests />,
           },
           {
@@ -162,7 +157,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-  { path:"*", element:<NotFound /> }
+  { path: "*", element: <NotFound /> },
 ]);
 const lightTheme = createTheme({
   palette: {
@@ -315,21 +310,29 @@ function App() {
     localStorage.setItem("themeMode", newMode);
   };
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <ThemeProvider theme={mode == "dark" ? darkTheme : lightTheme}>
-        <CssBaseline />
-        <MaterialUISwitch
-          sx={{ m: 1, position: "fixed", bottom: "0", left: "10", zIndex: 10 }}
-          checked={mode == "dark"}
-          onChange={(e: any) =>
-            toggleColorMode(e.target.checked ? "dark" : "light")
-          }
-        />
-        <AlertProvider>
-          <RouterProvider router={router} />
-        </AlertProvider>
-      </ThemeProvider>
-    </Suspense>
+    <AnimatePresence mode="wait">
+      <Suspense fallback={<LoadingScreen />}>
+        <ThemeProvider theme={mode == "dark" ? darkTheme : lightTheme}>
+          <CssBaseline />
+          <MaterialUISwitch
+            sx={{
+              m: 1,
+              position: "fixed",
+              bottom: "0",
+              left: "10",
+              zIndex: 10,
+            }}
+            checked={mode == "dark"}
+            onChange={(e: any) =>
+              toggleColorMode(e.target.checked ? "dark" : "light")
+            }
+          />
+          <AlertProvider>
+            <RouterProvider router={router} />
+          </AlertProvider>
+        </ThemeProvider>
+      </Suspense>
+    </AnimatePresence>
   );
 }
 
